@@ -55,9 +55,11 @@ public:
     }
     
     T get(int index) {
-        // if (index < 0 || index > size - 1) {
-        //     return nullptr;
-        // }
+        if (index < 0 || index > size - 1) {
+            String errorMessage = "Index out of range [" + String(index) + "]";
+            Serial.println(errorMessage);
+            return T();
+        }
         
         // From now on, head is guaranteed to be initialized.
         int i = 0;

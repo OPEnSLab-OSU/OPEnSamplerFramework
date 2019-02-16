@@ -7,7 +7,6 @@
 //
 
 #pragma once
-#include "Arduino.h"
 #include "LinkedList.hpp"
 #include "OPComponent.hpp"
 

@@ -7,24 +7,21 @@
 //
 
 #include "OPSystem.hpp"
-#include "LED.hpp"
-#include "Shifty.h"
-
-Shifty tpic;
+#include "LEDComponent.hpp"
+#include "ShiftRegisterComponent.hpp"
+// #include "Shifty.h"
 
 void app_setup() {
     Serial.begin(9600);
 
-    // LED* led = new LED("LED", LED_BUILTIN);
+    // auto led = new LEDComponent("LED", LED_BUILTIN);
     // app.addComponent(led);
 
     // LED* led2 = new LED("LED 2", 12);
     // app.addComponent(led2);
 
-    tpic.setBitCount(8);
-    tpic.setPins(11, 13, 10);
-    tpic.writeBit(5, HIGH);
-
+    auto regist = new ShiftRegisterComponent("TPIC", 8);
+    app.addComponent(regist);
     Serial.println("SETUP");
 }
 

@@ -7,23 +7,28 @@
 //
 
 #pragma once
-#include "Arduino.h"
 #include "OPComponent.hpp"
 
-class LED: public OPComponent {
+
+// LED blink demo
+class LEDComponent : public OPComponent {
 public:
-    LED(String name, int pin = Unavailable)
-    : OPComponent(name, pin) {
+    // LEDComponent(String name, int pin = Unavailable)
+    // : OPComponent(name, pin) {
         
-    }
+    // }
+
+    using OPComponent::OPComponent;
     
     void setup() override {
         Serial.println("LED Configured");
         pinMode(pin, OUTPUT);
     }
     
+
+    // TODO: Async LED demo
     void loop() override {
-        delay(100);
+        delay(300);
         digitalWrite(pin, HIGH);
         delay(100);
         digitalWrite(pin, LOW);
