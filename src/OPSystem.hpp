@@ -21,7 +21,8 @@ public:
     LinkedList<OPComponent *> components;
     OPAsync timer;
     
-    OPSystem(VoidFunction _setup, VoidFunction _loop) {
+    OPSystem(VoidFunction _setup, VoidFunction _loop) 
+    : timer("timer") {
         addComponent(&timer);
         
         setup = _setup;
@@ -38,7 +39,7 @@ extern OPSystem app;
 void loop() {
     app.loop();
     for(int i = 0; i < app.components.size; i++) {
-        (app.components.get(i))->loop();
+        app.components.get(i)->loop();
     }
 }
 

@@ -26,10 +26,8 @@ public:
     };
     
     LinkedList<Operation> operations;
-    
-    
-    OPAsync()
-    : OPComponent("timer") {
+    OPAsync(String name) : OPComponent(name, Unavailable) {
+        
     }
     
     // Return a reference to the object here because if we return by value we

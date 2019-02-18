@@ -20,7 +20,8 @@ void app_setup() {
     // LED* led2 = new LED("LED 2", 12);
     // app.addComponent(led2);
 
-    auto regist = new ShiftRegisterComponent("TPIC", 8);
+    auto regist = new ShiftRegisterComponent("TPIC", 16);
+    regist->setPins(11, 13, 10);
     app.addComponent(regist);
     Serial.println("SETUP");
 }

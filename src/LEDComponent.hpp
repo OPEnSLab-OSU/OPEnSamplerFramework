@@ -13,11 +13,6 @@
 // LED blink demo
 class LEDComponent : public OPComponent {
 public:
-    // LEDComponent(String name, int pin = Unavailable)
-    // : OPComponent(name, pin) {
-        
-    // }
-
     using OPComponent::OPComponent;
     
     void setup() override {

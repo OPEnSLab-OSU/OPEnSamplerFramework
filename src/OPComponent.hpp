@@ -16,9 +16,7 @@ public:
     String name = "unnamed";
     int pin = Unavailable;
     
-    OPComponent() {
-        
-    }
+    OPComponent() {}
     
     OPComponent(String name, int pin = Unavailable) :
     name(name), pin(pin) {
