@@ -8,18 +8,18 @@
 
 #include "OPSystem.hpp"
 #include "OPSerialParser.hpp"
-#include "LEDComponent.hpp"
-#include "ShiftRegisterComponent.hpp"
+#include "OPLEDComponent.hpp"
+#include "OPShiftRegisterComponent.hpp"
 
 OPSystem app([] () {
     // Init
     auto serial = new OPSerialParser();
     app.addComponent(serial);
 
-    auto led = new LEDComponent("led", LED_BUILTIN);
+    auto led = new OPLEDComponent("led", LED_BUILTIN);
     app.addComponent(led);
 
-    auto tpic = new ShiftRegisterComponent("tpic", 32);
+    auto tpic = new OPShiftRegisterComponent("tpic", 32);
     tpic->setPins(11, 13, 10);
     app.addComponent(tpic);
 }, [] () {

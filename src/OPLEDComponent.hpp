@@ -11,7 +11,7 @@
 
 
 // LED blink demo
-class LEDComponent : public OPComponent {
+class OPLEDComponent : public OPComponent {
 public:
     using OPComponent::OPComponent;
     

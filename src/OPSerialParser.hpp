@@ -9,11 +9,11 @@ private:
 public:
     OPSerialParser() : OPComponent("serial") {}
 
-    String getLastCommand() { 
+    String currentInput() { 
         return lastCommand;
     }
 
-    void clearLastCommand() { 
+    void clearInput() { 
         lastCommand = "";
     }
 

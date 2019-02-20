@@ -10,7 +10,7 @@
 #include "OPComponent.hpp"
 
 
-class ShiftRegisterComponent: public OPComponent {
+class OPShiftRegisterComponent: public OPComponent {
 private:
     byte * outputs;
     byte bitsize;
@@ -20,7 +20,7 @@ private:
     int clockPin;
     int latchPin;
 public:
-    ShiftRegisterComponent(String name, byte bitsize) 
+    OPShiftRegisterComponent(String name, byte bitsize) 
     : OPComponent(name), bitsize(bitsize) {
         count = bitsize / 8;
         outputs = new byte[count];
@@ -37,43 +37,44 @@ public:
         registerReset();
     }
 
-    void registerReset() {
+    void setOutputZero() {
         for (int i = 0; i < count; i++){
-            outputs[i] = 0x00000000;
+            outputs[i] = 0;
         }
+    }
+
+    /*
+        Set output array to zero and flush
+    */
+    void registerReset() {
+        setOutputZero();
         registerFlush();
     }
 
     /*
-    Write data in output array to dataPin
+        Write data from the output array to shift registers
      */ 
     bool registerFlush() {
         digitalWrite(latchPin, LOW);
-        // Shftout the output array
         for (int i = count - 1; i >= 0; i--){
             shiftOut(dataPin, clockPin, MSBFIRST, outputs[i]);
         }
-
-        // Turn the latch pin on to apply the output
         digitalWrite(latchPin, HIGH);
-        // delay(10);
     }
 
+    /*
+        Set data in the output array according to the bit and call registerFlush()
+    */
     bool registerWrite(byte bitToSet, bool signal) {
         if (bitToSet / 8 >= count) {
             return false;
         }
 
-        // Clear the output array
-        for (int i = 0; i < count; i++){
-            outputs[i] = 0;
-        }
+        setOutputZero();
 
-        // Set the output byte
         byte output = 0x00000000;
         bitWrite(output, bitToSet % 8, signal);
 
-        // Set the output byte according to register index
         byte index = bitToSet / 8;
         outputs[index] = output;
         registerFlush();
@@ -85,27 +86,15 @@ public:
         return true;
     }
 
-    String input = "";
     void loop() override {
-        auto serialParser = (OPSerialParser *) app.getComponentWithName("serial");
-        if (serialParser->getLastCommand() == "n") {
+        auto serialParser = (OPSerialParser *) app.getComponentByName("serial");
+        if (serialParser->currentInput() == "n") {
             for (int i = 0; i < bitsize; i++) {
                 registerWrite(i, HIGH);
             }
 
             registerReset();
-            serialParser->clearLastCommand();
+            serialParser->clearInput();
         }
-
-        // if (input != ""n && (inputChar == 10 || inputChar == 13)) {
-        //     Serial.read();
-        //     Serial.println();
-        //     Serial.println(input);
-        //     registerWrite(input.toInt(), HIGH);
-        //     input = "";
-        // } else if (inputChar != 10 || inputChar != 13) {
-        //     Serial.print(inputChar);
-        //     input += inputChar;
-        // }
     }
 };

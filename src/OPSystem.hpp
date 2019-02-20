@@ -12,9 +12,7 @@
 #include "OPComponent.hpp"
 
 class OPSystem {
-private:
 public:
-    int pin;
     VoidFunction setup;
     VoidFunction loop;
     
@@ -32,7 +30,7 @@ public:
         components.append(component);
     }
 
-    OPComponent * getComponentWithName(String name) {
+    OPComponent * getComponentByName(String name) {
         for (int i = 0; i < components.size; i++) {
             OPComponent * component = components.get(i);
             if (component->name == name) {
