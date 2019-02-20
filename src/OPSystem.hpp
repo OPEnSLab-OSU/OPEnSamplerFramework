@@ -24,13 +24,23 @@ public:
     OPSystem(VoidFunction _setup, VoidFunction _loop) 
     : timer("timer") {
         addComponent(&timer);
-        
         setup = _setup;
         loop = _loop;
     }
     
     void addComponent(OPComponent * component) {
         components.append(component);
+    }
+
+    OPComponent * getComponentWithName(String name) {
+        for (int i = 0; i < components.size; i++) {
+            OPComponent * component = components.get(i);
+            if (component->name == name) {
+                return component;
+            }
+        }
+
+        return nullptr;
     }
 };
 
@@ -47,8 +57,8 @@ void setup() {
     app.setup();
     for(int i = 0; i < app.components.size; i++) {
         OPComponent * component = app.components.get(i);
-        Serial.print("[Info] setting up component named: ");
-        Serial.println(component->name);
         component->setup();
+        Serial.print("[Info] Component has been initialized: ");
+        Serial.println(component->name);
     }
 }

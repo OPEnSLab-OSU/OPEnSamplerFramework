@@ -12,7 +12,7 @@
 
 class ShiftRegisterComponent: public OPComponent {
 private:
-    byte * registers;
+    byte * outputs;
     byte bitsize;
     byte count;
 
@@ -23,10 +23,7 @@ public:
     ShiftRegisterComponent(String name, byte bitsize) 
     : OPComponent(name), bitsize(bitsize) {
         count = bitsize / 8;
-        registers = new byte[count];
-        for(int i = 0; i < count; i++){
-            registers[i] = 0;
-        }
+        outputs = new byte[count];
     }
 
     void setPins(int data, int clock, int latch) {
@@ -37,6 +34,29 @@ public:
         pinMode(dataPin, OUTPUT);
         pinMode(clockPin, OUTPUT);
         pinMode(latchPin, OUTPUT);
+        registerReset();
+    }
+
+    void registerReset() {
+        for (int i = 0; i < count; i++){
+            outputs[i] = 0x00000000;
+        }
+        registerFlush();
+    }
+
+    /*
+    Write data in output array to dataPin
+     */ 
+    bool registerFlush() {
+        digitalWrite(latchPin, LOW);
+        // Shftout the output array
+        for (int i = count - 1; i >= 0; i--){
+            shiftOut(dataPin, clockPin, MSBFIRST, outputs[i]);
+        }
+
+        // Turn the latch pin on to apply the output
+        digitalWrite(latchPin, HIGH);
+        // delay(10);
     }
 
     bool registerWrite(byte bitToSet, bool signal) {
@@ -46,11 +66,8 @@ public:
 
         // Clear the output array
         for (int i = 0; i < count; i++){
-            registers[i] = 0;
+            outputs[i] = 0;
         }
-
-        // Turn the latch pin off to disable unwanted output
-        digitalWrite(latchPin, LOW);
 
         // Set the output byte
         byte output = 0x00000000;
@@ -58,45 +75,37 @@ public:
 
         // Set the output byte according to register index
         byte index = bitToSet / 8;
-        registers[index] = output;
-
-        // Shftout the output array
-        for (int i = count - 1; i >= 0; i--){
-            shiftOut(dataPin, clockPin, MSBFIRST, registers[i]);
-        }
-
-        // Turn the latch pin on to apply the output
-        digitalWrite(latchPin, HIGH);
+        outputs[index] = output;
+        registerFlush();
 
         Serial.print("Index: ");
         Serial.println(index);
         Serial.print("Register Write: ");
-        Serial.println(registers[index]);
+        Serial.println(outputs[index]);
         return true;
     }
 
     String input = "";
     void loop() override {
-        if (!Serial.available()) {
-            return;
-        }
-
-        char inputChar = Serial.read();
-        if (inputChar == 'n') {
-            for(int i = 0; i < bitsize; i++){
+        auto serialParser = (OPSerialParser *) app.getComponentWithName("serial");
+        if (serialParser->getLastCommand() == "n") {
+            for (int i = 0; i < bitsize; i++) {
                 registerWrite(i, HIGH);
             }
+
+            registerReset();
+            serialParser->clearLastCommand();
         }
 
-        if (input != "" && (inputChar == 10 || inputChar == 13)) {
-            Serial.read();
-            Serial.println();
-            Serial.println(input);
-            registerWrite(input.toInt(), HIGH);
-            input = "";
-        } else if (inputChar != 10 || inputChar != 13) {
-            Serial.print(inputChar);
-            input += inputChar;
-        }
+        // if (input != ""n && (inputChar == 10 || inputChar == 13)) {
+        //     Serial.read();
+        //     Serial.println();
+        //     Serial.println(input);
+        //     registerWrite(input.toInt(), HIGH);
+        //     input = "";
+        // } else if (inputChar != 10 || inputChar != 13) {
+        //     Serial.print(inputChar);
+        //     input += inputChar;
+        // }
     }
 };

@@ -23,10 +23,7 @@ public:
         
     }
     
-    virtual void setup() {
-        Serial.println("Component Setup");
-    }
+    virtual void setup() {}
     
-    virtual void loop() {
-    }
+    virtual void loop() {}
 };

@@ -7,27 +7,21 @@
 //
 
 #include "OPSystem.hpp"
+#include "OPSerialParser.hpp"
 #include "LEDComponent.hpp"
 #include "ShiftRegisterComponent.hpp"
-// #include "Shifty.h"
 
-void app_setup() {
-    Serial.begin(9600);
+OPSystem app([] () {
+    // Init
+    auto serial = new OPSerialParser();
+    app.addComponent(serial);
 
-    // auto led = new LEDComponent("LED", LED_BUILTIN);
-    // app.addComponent(led);
+    auto led = new LEDComponent("led", LED_BUILTIN);
+    app.addComponent(led);
 
-    // LED* led2 = new LED("LED 2", 12);
-    // app.addComponent(led2);
-
-    auto regist = new ShiftRegisterComponent("TPIC", 16);
-    regist->setPins(11, 13, 10);
-    app.addComponent(regist);
-    Serial.println("SETUP");
-}
-
-void app_loop() {
-    
-}
-
-OPSystem app(app_setup, app_loop);
+    auto tpic = new ShiftRegisterComponent("tpic", 32);
+    tpic->setPins(11, 13, 10);
+    app.addComponent(tpic);
+}, [] () {
+    // Update
+});

@@ -14,9 +14,17 @@ private:
     struct Node {
         T data;
         Node * next = nullptr;
-        Node(T data) : data(data) {}
-        
-        ~Node() { next = nullptr; }
+        Node(T data) : data(data) {
+
+        }
+
+        ~Node() {
+            next = nullptr;
+        }
+
+        bool hasNext() {
+            return next != nullptr;
+        }
     };
     
     Node * head = nullptr;

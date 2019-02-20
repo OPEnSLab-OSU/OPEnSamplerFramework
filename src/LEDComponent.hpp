@@ -16,14 +16,12 @@ public:
     using OPComponent::OPComponent;
     
     void setup() override {
-        Serial.println("LED Configured");
         pinMode(pin, OUTPUT);
     }
-    
 
     // TODO: Async LED demo
     void loop() override {
-        delay(300);
+        delay(100);
         digitalWrite(pin, HIGH);
         delay(100);
         digitalWrite(pin, LOW);
