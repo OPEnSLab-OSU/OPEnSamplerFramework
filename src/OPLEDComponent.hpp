@@ -21,9 +21,6 @@ public:
 
     // TODO: Async LED demo
     void loop() override {
-        delay(100);
-        digitalWrite(pin, HIGH);
-        delay(100);
-        digitalWrite(pin, LOW);
+        
     }
 };

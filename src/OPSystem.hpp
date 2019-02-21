@@ -8,7 +8,7 @@
 
 #pragma once
 #include "Arduino.h"
-#include "OPAsync.hpp"
+#include "OPActionSequence.hpp"
 #include "OPComponent.hpp"
 
 class OPSystem {
@@ -17,11 +17,16 @@ public:
     VoidFunction loop;
     
     LinkedList<OPComponent *> components;
-    OPAsync timer;
+    // OPActionSequence timer;
     
-    OPSystem(VoidFunction _setup, VoidFunction _loop) 
-    : timer("timer") {
-        addComponent(&timer);
+    // OPSystem(VoidFunction _setup, VoidFunction _loop) 
+    // : timer("timer") {
+    //     addComponent(&timer);
+    //     setup = _setup;
+    //     loop = _loop;
+    // }
+
+    OPSystem(VoidFunction _setup, VoidFunction _loop) {
         setup = _setup;
         loop = _loop;
     }

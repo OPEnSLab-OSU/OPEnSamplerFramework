@@ -78,6 +78,10 @@ public:
         }
         return (currentPtr->data);
     }
+
+    bool isEmpty() {
+        return size == 0;
+    }
     
     /*
      If prevPtr == null, that means we are  at the head.
