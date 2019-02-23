@@ -9,7 +9,6 @@
 #pragma once
 #include "OPComponent.hpp"
 
-
 class OPShiftRegisterComponent: public OPComponent {
 private:
     byte * outputs;
@@ -72,7 +71,7 @@ public:
 
         setOutputZero();
 
-        byte output = 0x00000000;
+        byte output = 0b00000000;
         bitWrite(output, bitToSet % 8, signal);
 
         byte index = bitToSet / 8;
@@ -84,6 +83,10 @@ public:
         Serial.print("Register Write: ");
         Serial.println(outputs[index]);
         return true;
+    }
+
+    void setup() override {
+        
     }
 
     void loop() override {

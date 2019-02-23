@@ -11,6 +11,12 @@
 
 int Unavailable = -1;
 
+/*
+    OPComponent defines two abstract methods that must be overrided by the subclass to
+    provide injection onto the main loop.
+    - setup()
+    - loop()
+*/
 class OPComponent {
 public:
     String name = "unnamed";
@@ -18,14 +24,12 @@ public:
     
     OPComponent() {}
     
-    OPComponent(String name, int pin = Unavailable) :
+    OPComponent(String name, int pin = Unavailable) 
+    :
     name(name), pin(pin) {
         
     }
     
-    virtual void setup() {}
-    
-    virtual void loop() {
-        
-    }
+    virtual void setup() = 0;
+    virtual void loop() = 0;
 };

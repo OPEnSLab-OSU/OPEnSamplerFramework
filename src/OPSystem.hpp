@@ -8,7 +8,7 @@
 
 #pragma once
 #include "Arduino.h"
-#include "OPActionSequence.hpp"
+#include "OPActionSequenceScheduler.hpp"
 #include "OPComponent.hpp"
 
 class OPSystem {
@@ -16,17 +16,15 @@ public:
     VoidFunction setup;
     VoidFunction loop;
     
-    LinkedList<OPComponent *> components;
-    // OPActionSequence timer;
-    
-    // OPSystem(VoidFunction _setup, VoidFunction _loop) 
-    // : timer("timer") {
-    //     addComponent(&timer);
-    //     setup = _setup;
-    //     loop = _loop;
-    // }
+    LinkedList<OPComponent*> components;
+    OPActionSequenceScheduler scheduler;
 
-    OPSystem(VoidFunction _setup, VoidFunction _loop) {
+    OPSystem(VoidFunction _setup, VoidFunction _loop)
+    :
+    scheduler("scheduler") {
+        // Serial.println("Serial Begin");
+        // delay(100);
+        addComponent(&scheduler);
         setup = _setup;
         loop = _loop;
     }
@@ -57,11 +55,12 @@ void loop() {
 }
 
 void setup() {
+    Serial.begin(9600);
     app.setup();
     for(int i = 0; i < app.components.size; i++) {
         OPComponent * component = app.components.get(i);
         component->setup();
-        Serial.print("[Info] Component has been initialized: ");
+        Serial.print("[Info] Component setup invoked: ");
         Serial.println(component->name);
     }
 }

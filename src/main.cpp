@@ -7,25 +7,25 @@
 //
 
 #include "OPSystem.hpp"
-#include "OPSerialParser.hpp"
-#include "OPLEDComponent.hpp"
-#include "OPShiftRegisterComponent.hpp"
 
-OPSystem app([] () {
-    // Init
-    // auto serial = new OPSerialParser();
-    // app.addComponent(serial);
 
-    auto led = new OPLEDComponent("led", LED_BUILTIN);
-    app.addComponent(led);
+// LED blinking demo
+void initialize() {
+    pinMode(LED_BUILTIN, OUTPUT);
 
-    // auto tpic = new OPShiftRegisterComponent("tpic", 32);
-    // tpic->setPins(11, 13, 10);
-    // app.addComponent(tpic);
+    OPActionSequence bl("blink");
+    bl.delay(100, []() {
+        digitalWrite(LED_BUILTIN, HIGH);
+    }).delay(100, []() {
+        digitalWrite(LED_BUILTIN, LOW);
+    });
 
-    // auto led = new OPLEDComponent("led", LED_BUILTIN);
-    // app.addComponent(led);
+    // Blink 5 times
+    app.scheduler.schedule(bl.then(bl).then(bl).then(bl).then(bl));
+}
 
-}, [] () {
-    // Update
-});
+void update() {
+
+}
+
+OPSystem app(initialize, update);

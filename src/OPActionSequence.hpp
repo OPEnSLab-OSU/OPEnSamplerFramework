@@ -7,147 +7,87 @@
 //
 
 #pragma once
-#include "LinkedList.hpp"
 #include "OPComponent.hpp"
+#include "LinkedList.hpp"
 
 String UnnamedOperation = "unnamed";
 using VoidFunction = void (*)();
 
-struct OPActionNode {
-    unsigned long start, delay;
+struct OPAction {
+    unsigned long start = 0, delay;
     bool expired = false;
-    String name;
     VoidFunction callback;
-    OPActionNode * next = nullptr;
+    
+    void activate() {
+        start = millis();
+    }
+    
+    void update() {
+        
+    }
 };
 
-class OPActionSequence : public OPComponent {
-private:
-    OPActionNode * head = nullptr;
-    bool activate = false;
-
-    friend class OPActionSequenceTimer;
+class OPActionSequence : public LinkedList<OPAction>, OPComponent {
 public:
-    int size = 0;
+    bool activated = false;
+    String name = "";
+private:
+    friend class OPActionSequenceScheduler;
+    void run() {
+        Serial.println("RUN");
+        activated = true;
+    }
+public:
+    OPActionSequence(String name = UnnamedOperation) 
+    : 
+    LinkedList(),OPComponent(), name(name) {
+        
+    }
     
-    // Copy constructor
-    OPActionSequence(const OPActionSequence &obj) {
-        auto source = obj.head;
-        if (source) {
-            head = new OPActionNode();
-            head->start = source->start;
-            head->delay = source->delay;
-            head->expired = source->expired;
-            head->callback = source->callback;
-        }
-
-        auto current = head;
-        while(source->next) {
-            source = source->next;
-            
-            auto copy = new OPActionNode();
-            copy->start = source->start;
-            copy->delay = source->delay;
-            copy->expired = source->expired;
-            copy->callback = source->callback;
-            current->next = copy;
-            current = current->next;
-        }
-        size = obj.size;
+    OPActionSequence(const OPActionSequence &obj) : LinkedList(obj) {
         name = obj.name;
-        activate = obj.activate;
+        activated = obj.activated;
     }
     
-    ~OPActionSequence() {
-        OPActionNode * currentPtr = head;
-        while (currentPtr) {
-            OPActionNode * next = currentPtr;
-            currentPtr = next->next;
-            delete next;
-        }
-        head = nullptr;
-    }
-    
-    // Using new keyword to allocate memory in the heap.
-    // Without using new keyword, the object will be destroyed when it goes out
-    // of scope.
     OPActionSequence & delay(unsigned long delay, VoidFunction callback) {
-        auto action = new OPActionNode();
-        action->delay = delay;
-        action->callback = callback;
+        OPAction action;
+        action.delay = delay;
+        action.callback = callback;
+        
         append(action);
         return * this;
     }
     
     OPActionSequence & completion(VoidFunction callback) {
-        auto action = new OPActionNode();
-        action->callback = callback;
-        append(action);
-        return * this;
+        return delay(0, callback);
     }
     
-    void append(OPActionNode * action) {
-        if (head) {
-            OPActionNode * currentPtr = head;
-            while (currentPtr->next) {
-                currentPtr = currentPtr->next;
-            }
-            
-            currentPtr->next = action;
-        } else {
-            head = action;
-        }
-        
-        size = size + 1;
-    }
-    
-    bool remove(int index) {
-        if (index < 0 || index > size - 1) {
-            return false;
-        }
-        
-        int i = 0;
-        OPActionNode * prevPtr = nullptr;
-        OPActionNode * currentPtr = head;
-        while (i != index) {
-            prevPtr = currentPtr;
-            currentPtr = currentPtr->next;
-            i++;
-        }
-        
-        if (prevPtr) {
-            prevPtr->next = currentPtr->next;
-        } else {
-            head = head->next;
-        }
-        
-        size--;
-        delete currentPtr;
-        return true;
+    OPActionSequence then(OPActionSequence const & other) {
+        OPActionSequence copy(*this);
+        copy.extend(other);
+        return copy;
     }
 
-    bool isCompleted() {
-        return head == nullptr;
-    }
-    
-    void run() {
-        activate = true;
+    void setup() override {
+
     }
 
     void loop() override {
-        if (!activate || isCompleted) {
+        if (!activated || isEmpty()) {
             return;
         }
 
-        if (head->start == 0){
-            head->start = millis();
+        OPAction & action = head->data;
+
+        if (action.start == 0){
+            action.start = millis();
         }
 
-        if (millis() - head->start < head->delay) {
+        if (millis() - action.start < action.delay) {
             return;
         }
         
-        head->callback();
+        action.callback();
         remove(0);
     }
 };
