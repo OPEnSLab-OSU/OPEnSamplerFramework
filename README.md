@@ -2,7 +2,7 @@
 Lightweight modularized Arduino framework for the next generation OPEnSampler
 
 ## Composing Asynchronous Actions
-```
+```c++
 #include "OPSystem.hpp"
 
 
