@@ -7,7 +7,8 @@
 //
 
 #include "OPSystem.hpp"
-
+#include "OPShiftRegisterComponent.hpp"
+// TODO: Integrate Async to OPSystem
 
 // LED blinking demo
 void initialize() {
@@ -21,7 +22,7 @@ void initialize() {
     });
 
     // Blink 5 times
-    app.scheduler.schedule(bl.then(bl).then(bl).then(bl).then(bl));
+    app.run(bl.then(bl).then(bl).then(bl).then(bl));
 }
 
 void update() {

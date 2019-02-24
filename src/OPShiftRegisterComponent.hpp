@@ -8,6 +8,7 @@
 
 #pragma once
 #include "OPComponent.hpp"
+#include "OPSerialParser.hpp"
 
 class OPShiftRegisterComponent: public OPComponent {
 private:
@@ -53,7 +54,7 @@ public:
     /*
         Write data from the output array to shift registers
      */ 
-    bool registerFlush() {
+    void registerFlush() {
         digitalWrite(latchPin, LOW);
         for (int i = count - 1; i >= 0; i--){
             shiftOut(dataPin, clockPin, MSBFIRST, outputs[i]);
@@ -68,7 +69,7 @@ public:
         if (bitToSet / 8 >= count) {
             return false;
         }
-
+        
         setOutputZero();
 
         byte output = 0b00000000;
@@ -91,13 +92,13 @@ public:
 
     void loop() override {
         auto serialParser = (OPSerialParser *) app.getComponentByName("serial");
-        if (serialParser->currentInput() == "n") {
+        if (serialParser->currentLine() == "n") {
             for (int i = 0; i < bitsize; i++) {
                 registerWrite(i, HIGH);
             }
 
             registerReset();
-            serialParser->clearInput();
+            serialParser->clearLine();
         }
     }
 };

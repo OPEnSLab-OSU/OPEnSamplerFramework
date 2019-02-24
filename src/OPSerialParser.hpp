@@ -9,11 +9,11 @@ private:
 public:
     OPSerialParser() : OPComponent("serial") {}
 
-    String currentInput() { 
+    String currentLine() { 
         return lastCommand;
     }
 
-    void clearInput() { 
+    void clearLine() { 
         lastCommand = "";
     }
 
@@ -34,6 +34,7 @@ public:
             return;
         }
 
+        // System characters
         if (inputChar < 32) {
             return;
         }

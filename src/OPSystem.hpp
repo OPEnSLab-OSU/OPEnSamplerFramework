@@ -7,26 +7,27 @@
 //
 
 #pragma once
-#include "Arduino.h"
-#include "OPActionSequenceScheduler.hpp"
 #include "OPComponent.hpp"
+#include "OPActionSequenceScheduler.hpp"
 
 class OPSystem {
-public:
-    VoidFunction setup;
-    VoidFunction loop;
-    
+private:
+    VoidFunction _setup;
+    VoidFunction _loop;
+public:  
     LinkedList<OPComponent*> components;
     OPActionSequenceScheduler scheduler;
 
     OPSystem(VoidFunction _setup, VoidFunction _loop)
     :
     scheduler("scheduler") {
-        // Serial.println("Serial Begin");
-        // delay(100);
         addComponent(&scheduler);
-        setup = _setup;
-        loop = _loop;
+        this->_setup = _setup;
+        this->_loop = _loop;
+    }
+
+    void run(OPActionSequence const & action) {
+        scheduler.schedule(action);
     }
     
     void addComponent(OPComponent * component) {
@@ -43,24 +44,36 @@ public:
 
         return nullptr;
     }
+
+    void setup() {
+        Serial.begin(9600);
+        _setup();
+        for(int i = 0; i < components.size; i++) {
+            OPComponent * component = components.get(i);
+            component->setup();
+            Serial.print("[Info] Component setup invoked: ");
+            Serial.println(component->name);
+        }
+    }
+
+    void loop() {
+        _loop();
+        for(int i = 0; i < components.size; i++) {
+            components.get(i)->loop();
+        }
+    }
 };
 
 extern OPSystem app;
 
-void loop() {
-    app.loop();
-    for(int i = 0; i < app.components.size; i++) {
-        app.components.get(i)->loop();
-    }
+void setup() {
+    app.setup();
 }
 
-void setup() {
-    Serial.begin(9600);
-    app.setup();
-    for(int i = 0; i < app.components.size; i++) {
-        OPComponent * component = app.components.get(i);
-        component->setup();
-        Serial.print("[Info] Component setup invoked: ");
-        Serial.println(component->name);
-    }
+void loop() {
+    app.loop();
+}
+
+void run(OPActionSequence & seq) {
+    app.run(seq);
 }

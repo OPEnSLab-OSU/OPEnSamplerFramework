@@ -7,6 +7,10 @@
 //
 
 #pragma once
+
+/*
+    Implementation of doubly linkedlist
+*/
 template <typename T>
 class LinkedList {
 protected:
@@ -52,73 +56,9 @@ protected:
             tail->prev = last;
             last->next = tail;
         }
-        
         size++;
     }
-    
-    bool invalidateIndex(int index) {
-        if (index < 0 || index > size - 1) {
-            String error = "Index out of range: " + String(index);
-            Serial.println(error);
-            return false;
-        }
-        
-        return true;
-    }
-    
-/*
-    Public methods
- */
-public:
-    int size = 0;
-    
-    LinkedList<T>(){
-        
-    };
-    
-    // Copy Constructor
-    LinkedList<T>(const LinkedList<T> &obj) {
-        auto source = obj.head;
-        while (source) {
-            auto node = new Node(*source);
-            node->prev = nullptr;
-            node->next = nullptr;
-            append(node);
-            source = source->next;
-        }
-    }
-    
-    // Copy Assignment
-    LinkedList<T> & operator =(LinkedList<T> const & rhs) {
-        deInit();
-        extend(rhs);
-        return * this;
-    }
-    
-    ~LinkedList<T>() {
-        deInit();
-    }
 
-    bool isEmpty() {
-        return size == 0;
-    }
-    
-    void append(T data) {
-        auto node = new Node(data);
-        append(node);
-    }
-    
-    void extend(LinkedList<T> const & other) {
-        auto source = other.head;
-        while (source) {
-            auto node = new Node(*source);
-            node->next = nullptr;
-            node->prev = nullptr;
-            append(node);
-            source = source->next;
-        }
-    }
-    
     Node * searchFromHead(int index) {
         if (invalidateIndex(index) == false) {
             return nullptr;
@@ -149,11 +89,79 @@ public:
         return current;
     }
     
+/*
+    Public methods
+ */
+public:
+    int size = 0;
+    
+    LinkedList<T>(){
+        
+    };
+    
+    // Copied constructor override
+    LinkedList<T>(const LinkedList<T> &obj) {
+        auto source = obj.head;
+        while (source) {
+            auto node = new Node(*source);
+            node->prev = nullptr;
+            node->next = nullptr;
+            append(node);
+            source = source->next;
+        }
+    }
+    
+    // Copied-assignment operator override
+    LinkedList<T> & operator =(LinkedList<T> const & rhs) {
+        deInit();
+        extend(rhs);
+        return * this;
+    }
+    
+    ~LinkedList<T>() {
+        deInit();
+    }
+
+    bool isEmpty() {
+        return size == 0;
+    }
+    
+    void append(T data) {
+        auto node = new Node(data);
+        append(node);
+    }
+    
+    void extend(LinkedList<T> const & other) {
+        auto source = other.head;
+        while (source) {
+            auto node = new Node(*source);
+            node->next = nullptr;
+            node->prev = nullptr;
+            append(node);
+            source = source->next;
+        }
+    }
+
+    bool invalidateIndex(int index) {
+        if (index < 0 || index > size - 1) {
+            String error = "Index out of range: " + String(index);
+            Serial.println(error);
+            delay(1000);
+            return false;
+        }
+        
+        return true;
+    }
+    
+    /*
+        Care must be taken when call this method. If index is invalid then the program will crash because of nullptr returned from searching.
+    */
     T & get(int index) {
-        // if (invalidateIndex(index) == false) {
-        //     return T();
-        // }
         auto target = index < size /2 ? searchFromHead(index) : searchFromTail(index);
+        if (target == nullptr) {
+            Serial.println("Illegal access");
+            delay(1000);
+        }
         return (target->data);
     }
 
@@ -163,9 +171,10 @@ public:
         }
         
         // Cut the searching time by 50% on average
-        auto target = index < size / 2 ? searchFromHead(index) : searchFromTail(index);    
+        auto target = index < size / 2 ? searchFromHead(index) : searchFromTail(index);
         if (head == tail) {
-            // Only one element in the list. Target is automatically head for a valid index.
+            // Only one element in the list. 
+            // Target is automatically head for a valid index.
             head = nullptr;
             tail = nullptr;
         } else if (index == 0 && size == 2) {

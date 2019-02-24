@@ -33,6 +33,7 @@ public:
     String name = "";
 private:
     friend class OPActionSequenceScheduler;
+    friend class OPSystem;
     void run() {
         Serial.println("RUN");
         activated = true;
