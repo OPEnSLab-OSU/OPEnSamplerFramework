@@ -10,15 +10,15 @@ Lightweight modularized Arduino framework for the next generation OPEnSampler
 void initialize() {
     pinMode(LED_BUILTIN, OUTPUT);
 
-    OPActionSequence bl("blink");
+     OPActionSequence bl("blink");
     bl.delay(100, []() {
         digitalWrite(LED_BUILTIN, HIGH);
-    }).delay(100, []() {
+    }).delay(500, []() {
         digitalWrite(LED_BUILTIN, LOW);
     });
+    bl.repeat = -1; // Repeat forever
 
-    // Blink 5 times
-    app.scheduler.schedule(bl.then(bl).then(bl).then(bl).then(bl));
+    run(bl);
 }
 
 void update() {

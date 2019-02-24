@@ -8,6 +8,8 @@
 
 #include "OPSystem.hpp"
 #include "OPShiftRegisterComponent.hpp"
+
+
 // TODO: Integrate Async to OPSystem
 
 // LED blinking demo
@@ -17,12 +19,12 @@ void initialize() {
     OPActionSequence bl("blink");
     bl.delay(100, []() {
         digitalWrite(LED_BUILTIN, HIGH);
-    }).delay(100, []() {
+    }).delay(500, []() {
         digitalWrite(LED_BUILTIN, LOW);
     });
+    bl.repeat = -1;
 
-    // Blink 5 times
-    app.run(bl.then(bl).then(bl).then(bl).then(bl));
+    run(bl);
 }
 
 void update() {

@@ -10,12 +10,16 @@
 #include "OPComponent.hpp"
 #include "LinkedList.hpp"
 
+
 String UnnamedOperation = "unnamed";
 using VoidFunction = void (*)();
 
 struct OPAction {
-    unsigned long start = 0, delay;
+    unsigned long start = 0;
+    unsigned long delay;
+
     bool expired = false;
+
     VoidFunction callback;
     
     void activate() {
@@ -30,23 +34,26 @@ struct OPAction {
 class OPActionSequence : public LinkedList<OPAction>, OPComponent {
 public:
     bool activated = false;
-    String name = "";
+    int repeat = 0;
+    int appendCount = 0;
 private:
     friend class OPActionSequenceScheduler;
     friend class OPSystem;
     void run() {
         Serial.println("RUN");
         activated = true;
+        appendCount = repeat * size;
     }
 public:
     OPActionSequence(String name = UnnamedOperation) 
     : 
-    LinkedList(),OPComponent(), name(name) {
+    LinkedList(), OPComponent(name) {
         
     }
     
     OPActionSequence(const OPActionSequence &obj) : LinkedList(obj) {
         name = obj.name;
+        repeat = obj.repeat;
         activated = obj.activated;
     }
     
@@ -81,15 +88,23 @@ public:
         OPAction & action = head->data;
 
         if (action.start == 0){
-            action.start = millis();
+            action.activate();
         }
 
-        if (millis() - action.start < action.delay) {
-            return;
+        if (millis() - action.start >= action.delay) {
+            Serial.println(name + ": " + String(size));
+            action.callback();
+
+            if (appendCount != 0) {
+                OPAction renew = action;
+                renew.start = 0;
+                
+                append(renew);
+                appendCount = max(appendCount - 1, -1); // make there is no overflow
+            }
+            
+            remove(0);
         }
-        
-        action.callback();
-        remove(0);
     }
 };
 

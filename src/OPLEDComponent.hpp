@@ -7,7 +7,6 @@
 //
 
 #pragma once
-#include "Arduino.h"
 #include "OPComponent.hpp"
 
 
@@ -18,7 +17,6 @@ public:
     
     void setup() override {
         pinMode(pin, OUTPUT);
-        
     }
 
     // TODO: Async LED demo

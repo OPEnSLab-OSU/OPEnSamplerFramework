@@ -10,6 +10,7 @@
 #include "OPComponent.hpp"
 #include "OPSerialParser.hpp"
 
+
 class OPShiftRegisterComponent: public OPComponent {
 private:
     byte * outputs;
