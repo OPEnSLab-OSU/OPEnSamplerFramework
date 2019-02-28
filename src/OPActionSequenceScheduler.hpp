@@ -11,8 +11,12 @@ class OPActionSequenceScheduler : public OPComponent {
 
     using OPComponent::OPComponent;
 
-    void schedule(OPActionSequence sequence) {
+    void schedule(OPActionSequence const & sequence) {
         sequences.append(sequence);
+    }
+
+    void scheduleForever(OPActionSequence const & sequence) {
+        
     }
     
     void setup() override {
@@ -25,7 +29,6 @@ class OPActionSequenceScheduler : public OPComponent {
         }
 
         // Serial.println("Scheduler Loop");
-
         for (int i = sequences.size - 1; i >= 0; i--) {
             OPActionSequence & sequence = sequences.get(i);
 
@@ -38,6 +41,22 @@ class OPActionSequenceScheduler : public OPComponent {
             if (sequence.isEmpty()) {
                 sequences.remove(i);
             }
+        }
+
+        auto current = sequences.head;
+        while (current) {
+            OPActionSequence & seq = current->data;
+            if (seq.activated) {
+                seq.loop();
+            } else {
+                seq.run();
+            }
+
+            if (seq.isEmpty()) {
+                sequences.remove(current);
+            }
+            
+            current = current->next;
         }
     }
 };

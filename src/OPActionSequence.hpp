@@ -36,6 +36,8 @@ public:
     bool activated = false;
     int repeat = 0;
     int appendCount = 0;
+
+    // OPActionSequence next = NULL;
 private:
     friend class OPActionSequenceScheduler;
     friend class OPSystem;
@@ -92,7 +94,7 @@ public:
         }
 
         if (millis() - action.start >= action.delay) {
-            Serial.println(name + ": " + String(size));
+            Serial.println(name + ": " + String(appendCount));
             action.callback();
 
             if (appendCount != 0) {

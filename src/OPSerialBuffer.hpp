@@ -1,25 +1,25 @@
 #pragma once
 #include "OPComponent.hpp"
 
-class OPSerialParser : public OPComponent {
+class OPSerialBuffer : public OPComponent {
 private:
     String input;
-    String lastCommand;
+    String currentCommand;
 
 public:
-    OPSerialParser() : OPComponent("serial") {}
+    OPSerialBuffer() : OPComponent("SerialBuffer") {}
 
     String currentLine() { 
-        return lastCommand;
+        return currentCommand;
     }
 
-    void clearLine() { 
-        lastCommand = "";
+    void clear() { 
+        currentCommand = "";
     }
 
     void setup() override {
         Serial.begin(9600);
-        delay(100);
+        delay(1000);
     }
 
     void loop() override {
@@ -29,7 +29,7 @@ public:
 
         char inputChar = Serial.read();
         if (inputChar == '\n') {
-            lastCommand = input;
+            currentCommand = input;
             input = "";
             return;
         }

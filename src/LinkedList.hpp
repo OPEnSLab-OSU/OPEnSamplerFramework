@@ -28,6 +28,8 @@ protected:
     Node * head = nullptr;
     Node * tail = nullptr;
     
+    friend class OPActionSequenceScheduler;
+    friend class OPSystem;
 /*
     Subclass Interfacing
  */
@@ -39,6 +41,8 @@ protected:
             current = current->next;
             delete trash;
         }
+
+        size = 0;
         head = nullptr;
         tail = nullptr;
     }
@@ -201,6 +205,30 @@ public:
         size--;
         delete target;
         return true;
+    }
+
+    bool remove(Node * nodeptr) {
+        if (nodeptr == nullptr) {
+            return false;
+        }
+
+        int index = 0;
+        auto current = head;
+        while (current) {
+            if (current == nodeptr) {
+                break;
+            }
+
+            index++;
+            current = current->next;
+        }
+
+        if (current) {
+            remove(index);
+            return true;
+        } else {
+            return false;
+        }
     }
     
     void printNodes() {

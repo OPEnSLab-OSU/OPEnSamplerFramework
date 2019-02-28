@@ -8,11 +8,10 @@
 
 #pragma once
 #include "OPComponent.hpp"
-#include "OPSerialParser.hpp"
-
+#include "OPSerialBuffer.hpp"
 
 class OPShiftRegisterComponent: public OPComponent {
-private:
+public:
     byte * outputs;
     byte bitsize;
     byte count;
@@ -41,6 +40,12 @@ public:
     void setOutputZero() {
         for (int i = 0; i < count; i++){
             outputs[i] = 0;
+        }
+    }
+
+    void setOutputOne() {
+        for (int i = 0; i < count; i++){
+            outputs[i] = 255;
         }
     }
 
@@ -92,14 +97,6 @@ public:
     }
 
     void loop() override {
-        auto serialParser = (OPSerialParser *) app.getComponentByName("serial");
-        if (serialParser->currentLine() == "n") {
-            for (int i = 0; i < bitsize; i++) {
-                registerWrite(i, HIGH);
-            }
-
-            registerReset();
-            serialParser->clearLine();
-        }
+ 
     }
 };
