@@ -9,8 +9,8 @@
 #pragma once
 #include "Arduino.h"
 
-
-int Unavailable = -1;
+static String Unnamed = "Unnamed";
+static int Unavailable = -1;
 
 /*
     OPComponent defines two abstract methods that must be overrided by the subclass to
@@ -20,12 +20,14 @@ int Unavailable = -1;
 */
 class OPComponent {
 public:
-    String name = "unnamed";
+    String name = Unnamed;
     int pin = Unavailable;
     
-    OPComponent() {}
-    
-    OPComponent(String name, int pin = Unavailable) 
+    OPComponent() {
+
+    }
+
+    OPComponent(String name = Unnamed, int pin = Unavailable) 
     :
     name(name), pin(pin) {
         
@@ -34,6 +36,7 @@ public:
     virtual void setup() {
 
     }
+
     virtual void loop() {
 
     }

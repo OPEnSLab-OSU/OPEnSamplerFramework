@@ -28,7 +28,7 @@ protected:
     Node * head = nullptr;
     Node * tail = nullptr;
     
-    friend class OPActionSequenceScheduler;
+    friend class OPTaskSequence;
     friend class OPSystem;
 /*
     Subclass Interfacing
@@ -93,6 +93,10 @@ protected:
         
         return current;
     }
+
+    Node * search(int index) {
+        return index < size /2 ? searchFromHead(index) : searchFromTail(index);
+    }
     
 /*
     Public methods
@@ -104,7 +108,7 @@ public:
         
     };
     
-    // Copied constructor override
+    // Copy-constructor override
     LinkedList<T>(const LinkedList<T> &obj) {
         auto source = obj.head;
         while (source) {
@@ -116,7 +120,7 @@ public:
         }
     }
     
-    // Copied-assignment operator override
+    // Copy-assignment operator override
     LinkedList<T> & operator =(LinkedList<T> const & rhs) {
         deInit();
         extend(rhs);
@@ -149,9 +153,7 @@ public:
 
     bool invalidateIndex(int index) {
         if (index < 0 || index > size - 1) {
-            String error = "Index out of range: " + String(index);
-            Serial.println(error);
-            delay(1000);
+            Serial.println("Index out of range: " + String(index));
             return false;
         }
         
@@ -163,11 +165,12 @@ public:
     */
     T & get(int index) {
         auto target = index < size /2 ? searchFromHead(index) : searchFromTail(index);
-        if (target == nullptr) {
+        if (target) {
+            return (target->data);
+        } else {
             Serial.println("Illegal access");
-            delay(1000);
+            while(true);
         }
-        return (target->data);
     }
 
     bool remove(int index) {

@@ -8,33 +8,25 @@
 
 #pragma once
 #include "OPComponent.hpp"
-#include "OPActionSequenceScheduler.hpp"
+#include "OPTaskSequence.hpp"
+#include "OPTaskScheduler.hpp"
 
 class OPSystem {
 private:
     VoidFunction _setup;
     VoidFunction _loop;
-    
-    OPActionSequenceScheduler scheduler;
 public:  
     LinkedList<OPComponent*> components;
+    OPTaskScheduler * scheduler;
 
-    OPSystem(VoidFunction _setup, VoidFunction _loop)
-    :
-    scheduler("scheduler") {
-        addComponent(&scheduler);
+    OPSystem(VoidFunction _setup, VoidFunction _loop) {
+        scheduler = new OPTaskScheduler();
+        addComponent(scheduler);
+
         this->_setup = _setup;
         this->_loop = _loop;
     }
 
-    void run(OPActionSequence const & action) {
-        scheduler.schedule(action);
-    }
-
-    void runForever(OPActionSequence const & action) {
-        scheduler.scheduleForever(action);
-    }
-    
     void addComponent(OPComponent * component) {
         components.append(component);
     }
@@ -92,10 +84,6 @@ void loop() {
     app.loop();
 }
 
-void run(OPActionSequence const & seq) {
-    app.run(seq);
+void run(OPTaskSequence const & seq) {
+    app.scheduler->append(seq);
 }
-
-// void run(OPActionSequence req) {
-
-// }
