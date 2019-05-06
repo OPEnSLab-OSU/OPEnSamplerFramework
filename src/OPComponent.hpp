@@ -9,9 +9,6 @@
 #pragma once
 #include "Arduino.h"
 
-static String Unnamed = "Unnamed";
-static int Unavailable = -1;
-
 /*
     OPComponent defines two abstract methods that must be overrided by the subclass to
     provide injection onto the main loop.
@@ -21,13 +18,12 @@ static int Unavailable = -1;
 class OPComponent {
 public:
     String name = Unnamed;
-    int pin = Unavailable;
+    int pin = UnavaiablePin;
+    bool enabled = true;
     
-    OPComponent() {
+    OPComponent() {}
 
-    }
-
-    OPComponent(String name = Unnamed, int pin = Unavailable) 
+    OPComponent(String name = Unnamed, int pin = UnavaiablePin) 
     :
     name(name), pin(pin) {
         
@@ -36,7 +32,7 @@ public:
     virtual void setup() {
 
     }
-
+    
     virtual void loop() {
 
     }

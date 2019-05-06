@@ -4,22 +4,27 @@
 class OPSerialBuffer : public OPComponent {
 private:
     String input;
-    String currentCommand;
+    String line;
 
+    void (*callback)(String &s);
 public:
-    OPSerialBuffer() : OPComponent("SerialBuffer") {}
+    using OPComponent::OPComponent;
 
     String currentLine() { 
-        return currentCommand;
+        return line;
     }
 
     void clear() { 
-        currentCommand = "";
+        line = "";
+    }
+
+    void didReceiveSerialCommand(void (*callback)(String &s)) {
+        this->callback = callback;
     }
 
     void setup() override {
-        Serial.begin(9600);
-        delay(1000);
+        // Serial.begin(9600);
+        // delay(1000);
     }
 
     void loop() override {
@@ -29,8 +34,11 @@ public:
 
         char inputChar = Serial.read();
         if (inputChar == '\n') {
-            currentCommand = input;
+            line = input + ' ';
             input = "";
+
+            callback(line);
+            clear();
             return;
         }
 

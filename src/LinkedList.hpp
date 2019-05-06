@@ -8,7 +8,6 @@
 
 #pragma once
 
-
 /*
     Implementation of doubly linkedlist
 */
@@ -28,7 +27,6 @@ protected:
     Node * head = nullptr;
     Node * tail = nullptr;
     
-    friend class OPTaskSequence;
     friend class OPSystem;
 /*
     Subclass Interfacing
@@ -61,6 +59,7 @@ protected:
             tail->prev = last;
             last->next = tail;
         }
+
         size++;
     }
 
@@ -153,7 +152,8 @@ public:
 
     bool invalidateIndex(int index) {
         if (index < 0 || index > size - 1) {
-            Serial.println("Index out of range: " + String(index));
+            Serial.print(F("Index out of range: "));
+            Serial.println(index);
             return false;
         }
         
@@ -161,14 +161,15 @@ public:
     }
     
     /*
-        Care must be taken when call this method. If index is invalid then the program will crash because of nullptr returned from searching.
+        Care must be taken when call this method. 
+        If index is invalid then the program will crash because of nullptr returned from searching.
     */
     T & get(int index) {
         auto target = index < size /2 ? searchFromHead(index) : searchFromTail(index);
         if (target) {
             return (target->data);
         } else {
-            Serial.println("Illegal access");
+            Serial.println(F("Illegal access"));
             while(true);
         }
     }
@@ -178,28 +179,29 @@ public:
             return false;
         }
         
-        // Cut the searching time by 50% on average
+        /*
+            Cut the searching time by 50% on average.
+            (1) Only one element in the list. Target is automatically head for a valid index.
+            (2) Special case where we are at head and only two nodes left.
+            (3) At head
+            (4) At body
+            (5) At tail
+        */
         auto target = index < size / 2 ? searchFromHead(index) : searchFromTail(index);
-        if (head == tail) {
-            // Only one element in the list. 
-            // Target is automatically head for a valid index.
+        if (head == tail) {                     // (1)
             head = nullptr;
             tail = nullptr;
-        } else if (index == 0 && size == 2) {
-            // special case where we are at head and only two nodes left
+        } else if (index == 0 && size == 2) {   // (2)
             head = tail;
             tail->prev = nullptr;
-        } else if (index == 0) {
-            // at head
+        } else if (index == 0) {                // (3)
             head = head->next;
-        } else if (target->next) {
-            // at body
+        } else if (target->next) {              // (4)
             auto prev = target->prev;
             auto next = target->next;
             prev->next = next;
             next->prev = prev;
-        } else {
-            // at tail
+        } else {                                // (5)
             auto prev = target->prev;
             tail = prev;
             tail->next = nullptr;
@@ -235,9 +237,14 @@ public:
     }
     
     void printNodes() {
+        Serial.println(F("Node List: "));
         auto current = head;
         int i = 0;
         while (current) {
+            Serial.print(F("["));
+            Serial.print(i);
+            Serial.print(F("] "));
+            Serial.println((unsigned int) current, HEX);
             current = current->next;
             i++;
         }
