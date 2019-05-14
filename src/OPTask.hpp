@@ -7,6 +7,7 @@
 //
 
 #pragma once
+#include "Arduino.h"
 #include "LinkedList.hpp"
 
 using VoidFunction = void (*)();

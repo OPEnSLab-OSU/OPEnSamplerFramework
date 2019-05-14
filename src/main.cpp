@@ -51,7 +51,7 @@ void userSerialInput(String &rawInput) {
     char ** ptr = &p;
     char * command = strsep(ptr, &space_delimiter);
     char * subcommand = strsep(ptr, &space_delimiter);
-    char * rest = *ptr;
+    char * theRest = *ptr;
     
     int arguments[6] = {0};
     for (int i = 0; i < 6; i++) {
@@ -236,7 +236,6 @@ void update() {
             Serial.println(F("-= Operating Mode =-"));
         }
 
-        Serial.println(freeMemory());
         interruptTriggered = false;
     }
 

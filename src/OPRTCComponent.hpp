@@ -6,12 +6,7 @@
 
 #define RTC_INTERRUPT_PIN 3
 
-//------------------------------------------------------------------------------------
-// 
-//------------------------------------------------------------------------------------
-
-
-// Psudo-routine for RTC interrupt calls
+// Routine for RTC interrupt calls
 void wakeup() {
     if (millis() - rtcInterruptStart < 500) {
         return;
@@ -38,7 +33,9 @@ public:
             Wire.write(1);
             Wire.endTransmission();
             Wire.requestFrom(DS3231_ADDRESS, 1);
-            if (Wire.read() != -1) {
+
+			// This means that all bits are high. I2C for DS3231 is active low.
+            if (Wire.read() != 0xFF) {
                 Serial.println(F("\n-= RTC Connected =-"));
                 break;
             } else {

@@ -19,24 +19,6 @@ using BoolFunction = bool (*)();
 #include "LinkedList.hpp"
 // #include "OPTaskScheduler.hpp"
 
-#ifdef __arm__
-extern "C" char* sbrk(int incr);
-#else  // __ARM__
-extern char *__brkval;
-#endif  // __arm__
- 
-int freeMemory() {
-  char top;
-#ifdef __arm__
-  return &top - reinterpret_cast<char*>(sbrk(0));
-#elif defined(CORE_TEENSY) || (ARDUINO > 103 && ARDUINO != 151)
-  return &top - __brkval;
-#else  // __arm__
-  return __brkval ? &top - __brkval : &top - __malloc_heap_start;
-#endif  // __arm__
-}
-
-
 class OPSystem {
 private:
     VoidFunction _setup;
@@ -44,11 +26,8 @@ private:
     VoidFunction _loop;
 public:  
     LinkedList<OPComponent *> components;
-    // OPTaskScheduler * scheduler;
 
     OPSystem(VoidFunction _setup, VoidFunction _didSetup, VoidFunction _loop) {
-        // scheduler = new OPTaskScheduler();
-
         this->_setup = _setup;
         this->_didSetup = _didSetup;
         this->_loop = _loop;
@@ -81,7 +60,6 @@ public:
             current = current->next;
         }
 
-        // scheduler->setup();
         _didSetup();
     }
 
@@ -96,7 +74,6 @@ public:
             current = current->next;
         }
 
-        // scheduler->loop();
     }
 };
 
@@ -109,21 +86,6 @@ OPComponent * get(String name) {
 void addComponent(OPComponent * component) {
     app.addComponent(component);
 }
-
-// void run(const OPTask & task) {
-//     app.scheduler->append(task);
-// }
-
-// void runForever(OPTask & task) {
-//     task.repeatTaskFor(-1);
-//     app.scheduler->append(task);
-// }
-
-// void setTimeout(long ms, VoidFunction callback) {
-//     OPTask task;
-//     task.wait(ms, callback);
-//     run(task);
-// }
 
 void setup() {
     app.setup();
