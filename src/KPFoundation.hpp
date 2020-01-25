@@ -3,35 +3,49 @@
 #undef min
 #undef max
 
-#include <KPConfig.hpp>
+#include <KPConfiguration.hpp>
 #include <algorithm>
 
-#define secsToMillis(x) (x * 1000)
-#define millisToSecs(x) (x / 1000)
+enum class Verbosity : int {
+	none,
+	error,
+	info,
+	debug
+};
+
+struct PrintConfig {
+public:
+	PrintConfig()							   = delete;
+	static const Verbosity defaultPrintVerbose = Verbosity::debug;
+	static Verbosity printVerbose;
+	static const char * printSeparator;
+};
+
+#define secsToMillis(x) ((x)*1000)
+#define millisToSecs(x) ((x) / 1000)
 
 class Error;
 extern "C" char * sbrk(int i);
 extern int free_ram();
 extern void printFreeRam();
-extern void raise(Error e, long ms = 2000);
+extern void raise(Error e, long ms = 3000);
 extern int strcmpi(const char *, const char *);
 
 class KPController;
 class KPComponent {
 public:
-    const char * name;
-    KPController * controller;
+	const char * name;
+	KPController * controller;
 
-    KPComponent(const char * name, KPController * controller = nullptr)
-        : name(name), controller(controller) {
-    }
+	KPComponent(const char * name, KPController * controller = nullptr)
+		: name(name), controller(controller) {}
 
-    virtual bool enabled() {
-        return true;
-    }
+	virtual bool enabled() {
+		return true;
+	}
 
-    virtual void setup(){};
-    virtual void update(){};
+	virtual void setup(){};
+	virtual void update(){};
 };
 
 //=============================================================================
@@ -39,171 +53,226 @@ public:
 //=============================================================================
 template <typename T>
 void print(const T & value) {
-    if (Config::printVerbose <= Config::defaultPrintVerbose) {
-        Serial.print(value);
-    }
+	if (PrintConfig::printVerbose <= PrintConfig::defaultPrintVerbose) {
+		Serial.print(value);
+	}
+}
+
+template <>
+inline void print(const time_t & value) {
+	Serial.print((long)value);
 }
 
 template <typename T, typename... Types>
 void print(const T & first, const Types &... args) {
-    print(first);
-    Serial.print(Config::printSeparator);
-    print(args...);
+	print(first);
+	Serial.print(PrintConfig::printSeparator);
+	print(args...);
 }
 
-template <typename T = void>
-void println() {
-    Serial.println();
+inline void println() {
+	Serial.println();
 }
 
 template <typename T>
-void println(const T & value) {
-    print(value);
-    Serial.println();
+inline void println(const T & value) {
+	print(value);
+	Serial.println();
+}
+
+template <>
+inline void println(const time_t & value) {
+	Serial.println((long)value);
 }
 
 template <typename T, typename... Types>
 void println(const T & first, const Types &... args) {
-    print(first);
-    Serial.print(Config::printSeparator);
-    println(args...);
+	print(first);
+	Serial.print(PrintConfig::printSeparator);
+	println(args...);
 }
 
-class KPReusableString : public String {
+class KPClearableString : public String {
 public:
-    using String::String;
+	using String::String;
+
+	static KPClearableString & sharedInstance() {
+		static KPClearableString * buffptr = nullptr;
+		if (!buffptr) {
+			static KPClearableString buff(0);
+			buff.reserve(KP_STATIC_STRING_BUFFER_SIZE);
+			buffptr = &buff;
+		}
+		return *buffptr;
+	}
+
 #ifdef ARDUINO_ARCH_SAMD
-    void clear() {
-        len = 0;
-    }
+	void clear() {
+		len = 0;
+	}
 #endif
 };
 
-template <size_t capacity = 80>
-class KPLocalString : public Printable {
-public:
-    size_t size = 0;
-    char c_str_buffer[capacity + 1]{0};
+template <size_t capacity>
+class KPStringBuilder : public Printable {
+private:
+	char buffer[capacity + 1]{0};
+	size_t size = 0;
+
+	static inline KPClearableString & sharedBuffer() {
+		return KPClearableString::sharedInstance();
+	}
+
+	static void clearSharedBuffer() {
+		sharedBuffer().clear();
+	}
 
 public:
-    static KPReusableString & buffer() {
-        static KPReusableString * buffptr = nullptr;
-        if (!buffptr) {
-            static KPReusableString buff(0);
-            buff.reserve(capacity);
-            buffptr = &buff;
-        }
-        return *buffptr;
-    }
+	size_t length() const {
+		return size;
+	}
 
-    static void clearBuffer() {
-        KPLocalString::buffer().clear();
-    }
+	const char * c_str() const {
+		return buffer;
+	}
 
-    KPLocalString() {}
+	KPStringBuilder() {}
 
-    KPLocalString(const KPLocalString & rhs) {
-        strncpy(c_str_buffer, rhs.c_str_buffer, std::min(capacity, rhs.size));
-        size = strlen(c_str_buffer);
-    }
+	// Construct from another KPStringBuilder
+	template <size_t N>
+	KPStringBuilder(const KPStringBuilder<N> & other) {
+		// println("Construct from another KPStringBuilder<", N, ">");
+		concat(other);
+	};
 
-    template <typename T>
-    KPLocalString(T first) {
-        concat(first);
-    }
+	// Construct from other types
+	template <typename T>
+	explicit KPStringBuilder(const T & first) {
+		concat(first);
+	}
 
-    template <typename T, typename... Types>
-    KPLocalString(T first, Types... args) {
-        concat(first, args...);
-    }
+	// Variadic template for construction
+	template <typename T, typename... Types>
+	explicit KPStringBuilder(T first, Types... args) {
+		concat(first, args...);
+	}
 
-    template <size_t N>
-    const char * concat(const KPLocalString<N> & s) {
-        return this->concat(s.c_str());
-    }
+	// Copy assignment to another KPStringBuilder
+	template <size_t N>
+	KPStringBuilder<capacity> & operator=(const KPStringBuilder<N> & other) {
+		// println("Copy assignment to another KPStringBuilder<", N, ">");
+		size = 0;
+		concat(other);
+		return *this;
+	};
 
-    template <typename T>
-    const char * concat(const T & first) {
-        clearBuffer();
-        buffer().concat(first);
-        transfer();
-        return c_str_buffer;
-    }
+	// Copy assignment to const char *
+	KPStringBuilder & operator=(const char * cstr) {
+		// println("Copy assignment to const char *");
+		for (size = 0; size < capacity; size++) {
+			if (!cstr[size]) break;
+			buffer[size] = cstr[size];
+		}
+		return *this;
+	};
 
-    template <typename T, typename... Types>
-    const char * concat(const T & first, const Types &... args) {
-        concat(first);
-        return concat(args...);
-    }
+	unsigned char compare(const char * cstr) const {
+		// println("Comparing...");
+		return strncmp(buffer, cstr, capacity + 1);
+	}
 
-    void transfer() {
-        int length = std::min(buffer().length(), capacity - size);
-        strncpy(c_str_buffer + size, buffer().c_str(), length);
-		size += length;
-        c_str_buffer[size] = 0;
-    }
+	bool operator==(const char * cstr) const {
+		return compare(cstr) == 0;
+	}
 
-    const char * c_str() const {
-        return c_str_buffer;
-    }
+	// Concatenate another KPStringBuilder
+	template <size_t N>
+	KPStringBuilder & concat(const KPStringBuilder<N> & other) {
+		// println("Concat from another KPStringBuilder<", N, "> which has
+		// size=", other.length());
+		const size_t new_size = std::min(capacity, size + other.length());
+		strncpy(buffer + size, other.c_str(), new_size - size);
+		size		 = new_size;
+		buffer[size] = 0;
+		return *this;
+	}
 
-    size_t printTo(Print & p) const {
-        return p.print(c_str_buffer);
-    }
+	// Concatenate other types.
+	// Use the shared String buffer to convert between types then copy the
+	// content over
+	template <typename T>
+	KPStringBuilder & concat(const T & first) {
+		// println("Concat from another type");
+		clearSharedBuffer();
+		sharedBuffer().concat(first);
+		strncpy(buffer + size, sharedBuffer().c_str(), capacity - size);
+		size		 = std::min(capacity, size + sharedBuffer().length());
+		buffer[size] = 0;
+		return *this;
+	}
 
-    bool operator==(const char * rhs) const {
-        println(c_str_buffer);
-        return strcmp(c_str_buffer, rhs) == 0;
-    }
+	// Variadic template for concatenate
+	template <typename T, typename... Types>
+	KPStringBuilder & concat(const T & first, const Types &... args) {
+		concat(first);
+		return concat(args...);
+	}
 
-    bool operator==(const KPLocalString & rhs) const {
-        return strcmp(c_str_buffer, rhs.c_str_buffer) == 0;
-    }
+	size_t printTo(Print & printer) const override {
+		return Serial.println(buffer);
+	}
+
+	operator const char *() const {
+		return buffer;
+	}
 };
 
-class Error {
+class Error : public Printable {
 public:
-    const char * name;
-    const char * message;
+	const char * name	 = nullptr;
+	const char * message = nullptr;
 
-    Error(const char * name, const char * message): name(name), message(message){
-    }
+	Error(const char * name, const char * message)
+		: name(name), message(message) {}
 
-    Error(const char * name, const KPLocalString<> & message)
-        : Error(name, message.c_str()) {}
+	explicit Error(const char * message = nullptr)
+		: Error(nullptr, message) {}
 
-    explicit Error(const char * message = nullptr)
-        : Error(nullptr, message) {}
+	Error(const Error & rhs, const char * message)
+		: Error(rhs.name, message) {}
 
-    Error(const Error & rhs, const char * message)
-        : Error(rhs.name, message) {}
+	Error(const Error & rhs)
+		: Error(rhs.name, rhs.message) {}
 
-    Error(const Error & rhs)
-        : Error(rhs.name, rhs.message) {}
+	Error withMessage(const char * message) const {
+		return Error(this->name, message);
+	}
 
-    Error withMessage(const char * message) const {
-        return Error(this->name, message);
-    }
+	size_t printTo(Print & printer) const {
+		return printer.print(name ? name : "Error")
+			   + printer.print(": ")
+			   + printer.println(message);
+	}
 
-    bool operator==(const Error & rhs) {
-        return name == rhs.name;
-    }
+	bool operator==(const Error & rhs) {
+		return strcmp(name, rhs.name);
+	}
 
-    bool operator!=(const Error & rhs) {
-        return !(*this == rhs);
-    }
+	bool operator!=(const Error & rhs) {
+		return !(*this == rhs);
+	}
 };
 
 namespace Exception {
-    static const Error OutOfRange      = Error("OutOfRangeError", "");
-    static const Error FileNotFound    = Error("FileNotFoundError", "");
-    static const Error InvalidArgument = Error("InvalidArgumentError", "");
+	static const Error OutOfRange	   = Error("OutOfRangeError", "");
+	static const Error FileNotFound	   = Error("FileNotFoundError", "");
+	static const Error InvalidArgument = Error("InvalidArgumentError", "");
 }  // namespace Exception
 
 #define var_name(x) Internal::_var_name(#x, x)
 namespace Internal {
-    template <typename T>
-    const char * _var_name(const char * name, const T & var) {
-        return name;
-    }
-};  // namespace Internal
+	template <typename T>
+	const char * _var_name(const char * name, const T & var) {
+		return name;
+	}
+};	// namespace Internal

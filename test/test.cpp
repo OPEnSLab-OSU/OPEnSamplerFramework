@@ -2,62 +2,60 @@ class KPTestApplication;
 
 #include <unity.h>
 
-#include <KPAction.hpp>
 #include <KPController.hpp>
+#include <KPSDCard.hpp>
+#include <KPSerialInput.hpp>
+#include <KPServer.hpp>
+#include <KPStateMachine.hpp>
+#include <KPAction.hpp>
+#include <KPApplicationRuntime.hpp>
 
-class KPTestApplication : public KPController {
-public:
-    KPActionScheduler<10> scheduler{"scheduler"};
+void TestActions() {
+	println("TESTING: TestActions");
+	KPAction action;
+	TEST_ASSERT(action.name == "Undefined");
 
-    void setup() override {
-        addComponent(scheduler);
-    }
-
-    void update() override {
-    }
-};
-
-KPTestApplication app;
-
-void TestKPLocalString() {
-    char name[] = "Kawin";
-    KPLocalString<> s("Hi there ", name, ", how are you doing today?");
-    TEST_ASSERT_TRUE(s == "Hi there Kawin, how are you doing today?");
+	KPArray<KPStringBuilder<20>, 10> builders;
+	builders.append(KPStringBuilder<20>("Hi there"));
+	TEST_ASSERT(builders[0] == "Hi there");
 }
 
-void TestStateMachine() {
-}
+void TestStringConstructors() {
+	println("TESTING: TestStringConstructors");
 
-void TestKPAction() {
-    KPActionChain<5> actionChain;
-    actionChain
-        .delay(1000, []() {
-            println("First");
-        })
-        .delay(1000, []() {
-            println("Second");
-        })
-        .delay(2000, []() {
-            println("Third");
-        })
-        .then([&]() {
-            KPActionChain<3> newActionChain;
-            newActionChain.delay(1000, []() {
-                println("Done");
-            });
-            run(newActionChain, app.scheduler);
-        });
+	char name[] = "Kawin";
+	KPStringBuilder<100> a("Hi there ", name, ", how are you doing today?");
+	TEST_ASSERT(a == "Hi there Kawin, how are you doing today?");
 
-    run(actionChain, app.scheduler);
+	KPStringBuilder<100> b = KPStringBuilder<400>("123456789");
+	TEST_ASSERT(b.length() == 9);
+	TEST_ASSERT(b == "123456789");
+
+	KPStringBuilder<9> d("1", 2, "3", 4, "5", 6, "7", 8, "9", KPStringBuilder<5>("xxxxx"));
+	TEST_ASSERT(d.length() == 9);
+	TEST_ASSERT(d == "123456789");
+
+	KPStringBuilder<9> e;
+	e = "123456789xxxxx";
+	TEST_ASSERT(e.length() == 9);
+	TEST_ASSERT(e == "123456789");
+
+	e = a;
+	TEST_ASSERT(e.length() == 9);
+	TEST_ASSERT(e == "Hi there ");
+	TEST_ASSERT(strcmp(KPStringBuilder<5>("12345").c_str(), "12345") == 0);
+
+	KPStringBuilder<12> f{"Hi there"};
+	TEST_ASSERT(f == "Hi there");
 }
 
 void setup() {
-    delay(3000);
-    UNITY_BEGIN();
-    RUN_TEST(TestKPLocalString);
-    RUN_TEST(TestStateMachine);
+	delay(5000);
+	UNITY_BEGIN();
+	RUN_TEST(TestStringConstructors);
+	RUN_TEST(TestActions);
+	UNITY_END();
 }
 
 void loop() {
-    UNITY_END();
 }

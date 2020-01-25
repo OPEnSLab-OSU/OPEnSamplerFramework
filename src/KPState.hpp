@@ -6,63 +6,84 @@
 
 struct KPStateSchedule {
 private:
-    bool activated = false;
-    friend class KPStateMachine;
+	bool activated = false;
+	friend class KPStateMachine;
 
 public:
-    long time = 0;
-    std::function<void()> callback;
+	unsigned long time = 0;
+	std::function<bool()> condition;
+	std::function<void()> callback;
 
-    KPStateSchedule(long time, std::function<void()> callback)
-        : time(time), callback(callback) {}
+	KPStateSchedule(long time, std::function<void()> callback)
+		: time(time), callback(callback) {
+	}
+
+	KPStateSchedule(std::function<bool()> condition, std::function<void()> callback)
+		: condition(condition), callback(callback) {
+	}
 };
 
 class KPState {
-    friend class KPStateMachine;
+	friend class KPStateMachine;
 
 private:
-    const char * name      = nullptr;
-    long startTime         = 0;
-    size_t currentSchedule = 0;
-    std::vector<KPStateSchedule> schedules;
+	const char * name		= nullptr;
+	unsigned long startTime = 0;
+	size_t currentSchedule	= 0;
+	std::vector<KPStateSchedule> schedules;
 
-    void begin() {
-        startTime = millis();
-    }
-
-    void stop() {
-        currentSchedule = 0;
-    }
+	void begin() {
+		startTime		= millis();
+		currentSchedule = 0;
+	}
 
 public:
-    const char * getName() const {
-        return name;
-    }
+	void reserve(size_t size) {
+		schedules.reserve(size);
+	}
 
-    // enter and leave methods are required by subclasses
-    virtual void enter(KPStateMachine & sm) = 0;
+	const char * getName() const {
+		return name;
+	}
 
-    // update is optional
-    virtual void leave(KPStateMachine & sm) {
-    }
+	// enter and leave methods are required by subclasses
+	virtual void enter(KPStateMachine & sm) = 0;
 
-    virtual void update(KPStateMachine & sm) {
-    }
+	// update is optional
+	virtual void leave(KPStateMachine & sm) {
+	}
 
-    long timeSinceLastTransition() const {
-        return millis() - startTime;
-    }
+	virtual void update(KPStateMachine & sm) {
+	}
 
-    void wait(long time, std::function<void()> callback) {
-        long prevTime = currentSchedule ? schedules[currentSchedule - 1].time : 0;
-        if (currentSchedule == schedules.size()) {
-            schedules.push_back(KPStateSchedule(prevTime + time, callback));
-            println("Adding new schedule");
-        } else {
-            schedules[currentSchedule] = KPStateSchedule(prevTime + time, callback);
-            println("Updating schedule");
-        }
+	unsigned long timeSinceLastTransition() const {
+		return millis() - startTime;
+	}
 
-        currentSchedule++;
-    }
+	void setTimeCondition(unsigned long time, std::function<void()> callback) {
+		if (currentSchedule == schedules.size()) {
+			schedules.push_back(KPStateSchedule(time, callback));
+			println("Adding new schedule");
+		} else {
+			schedules[currentSchedule] = KPStateSchedule(time, callback);
+			println("Updating schedule");
+		}
+
+		println("Time arugment:", time);
+		println("Schedule Time:", schedules[currentSchedule].time);
+
+		currentSchedule++;
+	}
+
+	void setCondition(std::function<bool()> condition, std::function<void()> callback) {
+		if (currentSchedule == schedules.size()) {
+			schedules.push_back(KPStateSchedule(condition, callback));
+			println("Adding new schedule");
+		} else {
+			schedules[currentSchedule] = KPStateSchedule(condition, callback);
+			println("Updating schedule");
+		}
+
+		currentSchedule++;
+	}
 };

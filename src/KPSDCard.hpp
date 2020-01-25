@@ -1,29 +1,29 @@
 #pragma once
-#include <KPFoundation.hpp>
-#include <KPDataStoreInterface.hpp>
 #include <SD.h>
 
-class KPSDCard: public KPDataStoreInterface {
+#include <KPDataStoreInterface.hpp>
+#include <KPFoundation.hpp>
+
+class KPSDCard : public KPDataStoreInterface {
 private:
 	int pin;
+
 public:
-	KPSDCard(const char * name, int pin): KPDataStoreInterface(name), pin(pin) {}
+	KPSDCard(const char* name, int pin)
+		: KPDataStoreInterface(name), pin(pin) {}
 
 	void setup() override {
 		SD.begin(pin);
 	}
 
-	int loadContentOfFile(const char * filepath, char * buffer, size_t bufferSize) override {
+	int loadContentOfFile(const char* filepath, char* buffer, size_t bufferSize, int* charsRemaining = nullptr) override {
 		if (bufferSize <= 0 || buffer == nullptr || filepath == nullptr) {
-			println("Invalid arguments", filepath, buffer, bufferSize);
-			return 0;
+			raise(Exception::InvalidArgument.withMessage("loadContentOfFile"));
 		}
 
-		println("Loading content of file: ", filepath);
-
 		// Keep track of the position in the file
-		static size_t position = 0;
-		static const char * prevFilepath = nullptr;
+		static size_t position			= 0;
+		static const char* prevFilepath = nullptr;
 		if (prevFilepath == nullptr || strcmp(filepath, prevFilepath) != 0) {
 			position = 0;
 		}
@@ -34,9 +34,10 @@ public:
 		if (!file) {
 			println("File not found: ", filepath);
 			position = 0;
-			return 0;
+			return -1;
 		} else {
 			println("File found: ", file.name());
+			println("Loading content of file: ", filepath);
 		}
 
 		// Calculate how many bytes are remaining to be read
@@ -49,19 +50,26 @@ public:
 			return 0;
 		}
 
-		// Copy 
-		int size = constrain(bytesRemaining, 0, bufferSize - 1);
+		// Copy
+		int size	 = constrain(bytesRemaining, 0, bufferSize - 1);
 		buffer[size] = 0;
 		file.seek(position);
 		file.read(buffer, size);
 		file.close();
 
-		position += size;		
+		position += size;
+
+		if (charsRemaining) {
+			*charsRemaining = file.size();
+		}
 		return size;
 	}
 
-	int saveContentToFile(const char * filepath, char * buffer, size_t bufferSize) override {
-		return 0;
+	int saveContentToFile(const char* filepath, char* buffer, size_t bufferSize, bool replaceContent = false) override {
+		File file = SD.open(filepath, FILE_WRITE);
+		if (replaceContent) file.seek(0);
+		file.write(buffer, bufferSize);
+		file.close();
+		return bufferSize;
 	}
 };
-

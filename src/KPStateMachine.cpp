@@ -10,29 +10,36 @@ void KPStateMachine::update() {
 		return;
 	}
 
-	for (KPStateSchedule & s: currentState->schedules) {
+	for (KPStateSchedule & s : currentState->schedules) {
+		if (!s.activated && s.condition) {
+			if (!s.condition()) {
+				continue;
+			}
+			s.activated = true;
+			s.callback();
+		}
+
 		if (!s.activated && currentState->timeSinceLastTransition() >= s.time) {
 			s.activated = true;
 			s.callback();
 		}
 	}
-	
-    currentState->update(*this);
+
+	currentState->update(*this);
 }
 
 void KPStateMachine::transitionTo(const char * name) {
-    // Leave the current state
-    if (currentState) {
-        currentState->leave(*this);
-		currentState->stop();
-    }
+	// Leave the current state
+	if (currentState) {
+		currentState->leave(*this);
+	}
 
-    // Move to new state
-    auto next = statesByName[name];
-    if (next) {
-        currentState = next;
-		currentState->begin(); 
+	// Move to new state
+	auto next = statesByName[name];
+	if (next) {
+		currentState = next;
+		currentState->begin();
 		println("Transitioned to ", next->getName());
-        currentState->enter(*this);
-    }
+		currentState->enter(*this);
+	}
 }

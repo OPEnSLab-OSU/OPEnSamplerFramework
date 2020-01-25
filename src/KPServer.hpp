@@ -13,173 +13,174 @@
 using EndPointCallback = std::function<void(Request &, Response &)>;
 
 struct RequestHandler {
-    const char * path;
-    const char * method;
-    EndPointCallback callback;
+	const char * path;
+	const char * method;
+	EndPointCallback callback;
 
-    RequestHandler() {}
+	RequestHandler() {}
 
-    RequestHandler(const char * path, const char * method, EndPointCallback callback)
-        : path(path), method(method), callback(callback) {
-    }
+	RequestHandler(const char * path, const char * method, EndPointCallback callback)
+		: path(path), method(method), callback(callback) {
+	}
 };
 
 class KPServer : public KPComponent {
 public:
-    const char * ssid;
-    const char * pass;
+	const char * ssid;
+	const char * pass;
 
-    uint8_t status = WL_IDLE_STATUS;
-    bool isRunning = false;
+	uint8_t status = WL_IDLE_STATUS;
+	bool isRunning = false;
 
-    KPArray<RequestHandler, 20> handlers;
-    WiFiServer server;
+	KPArray<RequestHandler, 20> handlers;
+	WiFiServer server;
 
-    const size_t TCP_LIMIT = 1400;
+	const size_t TCP_LIMIT = 1400;
 
-    KPServer(const char * name, const char * ssid, const char * pass, const size_t tcp_limit = 1400)
-        : KPComponent(name), ssid(ssid), pass(pass), server(80), TCP_LIMIT(tcp_limit) {}
+	KPServer(const char * name, const char * ssid, const char * pass, const size_t tcp_limit = 1400)
+		: KPComponent(name), ssid(ssid), pass(pass), server(80), TCP_LIMIT(tcp_limit) {}
 
-    void setup() override {
-        WiFi.setPins(8, 7, 4, 2);
-        WiFi.lowPowerMode();
-        WiFi.beginAP(ssid, pass);
-        while ((status = WiFi.status()) != WL_AP_LISTENING) {
-            WiFi.beginAP(ssid, pass);
-            println(F("WiFi AP Mode Failed to Initialize"));
-            println(F("Try again in "));
-            for (char i = 3; i > 0; i++) {
-                println(i);
-                delay(1000);
-            }
-        }
-    }
+	void setup() override {
+		WiFi.setPins(8, 7, 4, 2);
+		WiFi.lowPowerMode();
+	}
 
-    void begin() {
-        isRunning = true;
-    }
+	void begin() {
+		WiFi.beginAP(ssid, pass);
+		while ((status = WiFi.status()) != WL_AP_LISTENING) {
+			WiFi.beginAP(ssid, pass);
+			println(F("WiFi AP Mode Failed to Initialize"));
+			println(F("Try again in "));
+			for (char i = 3; i > 0; i++) {
+				println(i);
+				delay(1000);
+			}
+		}
 
-    void update() override {
-        if (!isRunning) {
-            return;
-        }
+		isRunning = true;
+	}
 
-        // WiFi status has changed
-        if (status != WiFi.status()) {
-            if ((status = WiFi.status()) == WL_AP_CONNECTED) {
-                byte remoteMac[6];
-                WiFi.APClientMacAddress(remoteMac);
-                println(F("Device connected to AP"));
-                print(F("MAC Address: "));
-                printMacAddress(remoteMac);
-                server.begin();
-            } else {
-                println(F("Device disconnected from AP"));
-            }
-        }
+	void update() override {
+		if (!isRunning) {
+			return;
+		}
 
-        // Short circuit if client is not connected
-        if (status != WL_AP_CONNECTED) {
-            return;
-        }
+		// WiFi status has changed
+		if (status != WiFi.status()) {
+			if ((status = WiFi.status()) == WL_AP_CONNECTED) {
+				byte remoteMac[6];
+				WiFi.APClientMacAddress(remoteMac);
+				println(F("Device connected to AP"));
+				print(F("MAC Address: "));
+				printMacAddress(remoteMac);
+				server.begin();
+			} else {
+				println(F("Device disconnected from AP"));
+			}
+		}
 
-        WiFiClient client = server.available();
-        if (client && client.connected() && client.available()) {
-            constexpr const int size = 4096;
-            char httpRequest[size + 1]{0};
-            int count = 0;
+		// Short circuit if client is not connected
+		if (status != WL_AP_CONNECTED) {
+			return;
+		}
 
-            while (client.available()) {
-                httpRequest[count++] = client.read();
-            }
+		WiFiClient client = server.available();
+		if (client && client.connected() && client.available()) {
+			constexpr const int size = 4096;
+			char httpRequest[size + 1]{0};
+			int count = 0;
 
-            if (!strstr(httpRequest, "\r\n\r\n")) {
-                delay(10);
-                while (client.available()) {
-                    httpRequest[count++] = client.read();
-                }
-            }
+			while (client.available()) {
+				httpRequest[count++] = client.read();
+			}
 
-            // Construct a request object and handle accordingly
-            client.flush();
-            Request request(httpRequest, client);
-            handleRequest(request);
-        }
-    }
+			if (strstr(httpRequest, "Content-Length:")) {
+				delay(10);
+				while (client.available()) {
+					httpRequest[count++] = client.read();
+				}
+			}
 
-    void on(const char * path, const char * method, EndPointCallback callback) {
-        handlers.append(RequestHandler(path, method, callback));
-    }
+			// Construct a request object and handle accordingly
+			client.flush();
+			Request request(httpRequest, client);
+			handleRequest(request);
+		}
+	}
 
-    void get(const char * path, EndPointCallback callback) {
-        on(path, HTTP_GET, callback);
-    }
+	void on(const char * path, const char * method, EndPointCallback callback) {
+		handlers.append(RequestHandler(path, method, callback));
+	}
 
-    void post(const char * path, EndPointCallback callback) {
-        on(path, HTTP_POST, callback);
-    }
+	void get(const char * path, EndPointCallback callback) {
+		on(path, HTTP_GET, callback);
+	}
 
-    void serveStaticFile(const char * path, const char * filepath, KPDataStoreInterface & store) {
-        on(path, HTTP_GET, [=, &store](Request & req, Response & res) {
-            constexpr int size = 1400;
-            char buffer[size]{0};
-            res.setHeader("Content-Type", "text/html");
-            while (store.loadContentOfFile(filepath, buffer, size)) {
-                res.send(buffer);
-            }
-            res.end();
-        });
-    }
+	void post(const char * path, EndPointCallback callback) {
+		on(path, HTTP_POST, callback);
+	}
 
-    //===========================================================
-    // [+_+] Search for the coresponding request handler and call the callback function
-    //===========================================================
-    void handleRequest(Request & req) {
-        WiFiClient & client = req.client;
-        Response res(client, TCP_LIMIT);
-        for (unsigned int i = 0; i < handlers.size(); i++) {
-            if (strcmp(handlers[i].path, req.path) == 0 && strcmp(handlers[i].method, req.method) == 0) {
-                println("Routing to", handlers[i].path);
-                printFreeRam();
-                handlers[i].callback(req, res);
-                return;
-            }
-        }
+	void serveStaticFile(const char * path, const char * filepath, KPDataStoreInterface & store) {
+		on(path, HTTP_GET, [=, &store](Request & req, Response & res) {
+			constexpr int size = 1400;
+			char buffer[size]{0};
+			res.setHeader("Content-Type", "text/html");
+			while (store.loadContentOfFile(filepath, buffer, size)) {
+				res.send(buffer);
+			}
+			res.end();
+		});
+	}
 
-        res.notFound();
-    }
+	//===========================================================
+	// [+_+] Search for the coresponding request handler and call the callback function
+	//===========================================================
+	void handleRequest(Request & req) {
+		WiFiClient & client = req.client;
+		Response res(client, TCP_LIMIT);
+		for (unsigned int i = 0; i < handlers.size(); i++) {
+			if (strcmp(handlers[i].path, req.path) == 0 && strcmp(handlers[i].method, req.method) == 0) {
+				println("Routing to", handlers[i].path);
+				printFreeRam();
+				handlers[i].callback(req, res);
+				return;
+			}
+		}
 
-    void printWiFiStatus() {
-        // SSID:
-        print(F("SSID: "));
-        println(WiFi.SSID());
+		res.notFound();
+	}
 
-        // IP address:
-        IPAddress ip = WiFi.localIP();
-        print(F("IP Address: "));
-        println(ip);
+	void printWiFiStatus() {
+		// SSID:
+		print(F("SSID: "));
+		println(WiFi.SSID());
 
-        // Signal strength:
-        long rssi = WiFi.RSSI();
-        print(F("Signal strength (RSSI):"));
-        print(rssi);
-        println(F(" dBm"));
+		// IP address:
+		IPAddress ip = WiFi.localIP();
+		print(F("IP Address: "));
+		println(ip);
 
-        // Address:
-        print(F("Web Browser: http://"));
-        println(ip);
-    }
+		// Signal strength:
+		long rssi = WiFi.RSSI();
+		print(F("Signal strength (RSSI):"));
+		print(rssi);
+		println(F(" dBm"));
 
-    void printMacAddress(byte mac[]) {
-        for (int i = 5; i >= 0; i--) {
-            if (mac[i] < 16) {
-                print("0");
-            }
-            print(mac[i], HEX);
-            if (i > 0) {
-                print(":");
-            }
-        }
-        println();
-    }
+		// Address:
+		print(F("Web Browser: http://"));
+		println(ip);
+	}
+
+	void printMacAddress(byte mac[]) {
+		for (int i = 5; i >= 0; i--) {
+			if (mac[i] < 16) {
+				print("0");
+			}
+			print(mac[i], HEX);
+			if (i > 0) {
+				print(":");
+			}
+		}
+		println();
+	}
 };

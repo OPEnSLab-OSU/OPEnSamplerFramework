@@ -9,7 +9,7 @@ public:
 
 class KPSerialInput {
 private:
-    KPReusableString input;
+	KPClearableString input;
 	std::vector<KPSerialInputListener *> listeners;
 
 public:
@@ -17,25 +17,27 @@ public:
 		listeners.push_back(delegate);
 	}
 
-    void update() {
-        while (Serial.available() > 0) {
-            char inputChar = Serial.read();
-            if (inputChar == '\n') {
-				for (auto d: listeners) {
+	void update() {
+		while (Serial.available() > 0) {
+			char inputChar = Serial.read();
+			if (inputChar == '\n') {
+				println();
+				for (auto d : listeners) {
 					d->commandReceived(input);
 				}
 
-                input.clear();
-                return;
-            }
+				input.clear();
+				print("> ");
+				return;
+			}
 
-            // Ignore System characters
-            if (inputChar >= 32) {
-                input += inputChar;
-                print(inputChar);
-            }
-        }
-    }
+			// Ignore System characters
+			if (inputChar >= 32) {
+				input += inputChar;
+				print(inputChar);
+			}
+		}
+	}
 
 	static KPSerialInput & instance() {
 		static KPSerialInput serial;
