@@ -29,9 +29,11 @@ extern "C" char * sbrk(int i);
 extern int free_ram();
 extern void printFreeRam();
 extern void raise(Error e, long ms = 3000);
+extern void raise(const char *, long ms = 3000);
 extern int strcmpi(const char *, const char *);
 
 class KPController;
+
 class KPComponent {
 public:
 	const char * name;
@@ -177,7 +179,6 @@ public:
 	};
 
 	unsigned char compare(const char * cstr) const {
-		// println("Comparing...");
 		return strncmp(buffer, cstr, capacity + 1);
 	}
 
@@ -251,7 +252,7 @@ public:
 	size_t printTo(Print & printer) const {
 		return printer.print(name ? name : "Error")
 			   + printer.print(": ")
-			   + printer.println(message);
+			   + printer.print(message);
 	}
 
 	bool operator==(const Error & rhs) {

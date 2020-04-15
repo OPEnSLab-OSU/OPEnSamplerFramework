@@ -1,22 +1,26 @@
 
 #pragma once
+
+#include <ArduinoJson.h>
+#include <StreamUtils.h>
 #include <WiFi101.h>
 
-#include <KPDataStoreInterface.hpp>
-#include <KPFoundation.hpp>
 #include <map>
-#include <ArduinoJson.h>
-
 #include <functional>
+
+#include <KPFoundation.hpp>
+#include <KPDataStoreInterface.hpp>
 
 struct Response {
 private:
 	int status		   = 200;
 	bool headerPending = true;
 	std::map<const char *, const char *> headers{
-		{"Content-Type", "text/html"},
+		{"Content-Type", "text/html; charset=UTF-8"},
 		{"Access-Control-Allow-Methods", "GET, POST, DELETE, OPTIONS"},
-		{"Access-Control-Allow-Origin", "*"}};
+		{"Access-Control-Allow-Origin", "*"},
+		{"Connection", "Keep-Alive"},
+		{"Content-Language", "en-us"}};
 
 	std::function<void()> _notFound;
 
@@ -32,10 +36,10 @@ private:
 
 	const char * statusText(int code) const {
 		switch (code) {
-			case 200:
-				return "OK";
-			default:
-				return "Not Found";
+		case 200:
+			return "OK";
+		default:
+			return "Not Found";
 		}
 	}
 
@@ -69,6 +73,7 @@ public:
 		}
 
 		client.print(data);
+		// client.write(data);
 	}
 
 	template <size_t N>
@@ -87,11 +92,37 @@ public:
 		client.print(data);
 	}
 
-	template <size_t size>
-	void sendJson(const JsonDocument & doc) {
-		char buffer[size]{0};
-		serializeJson(doc, buffer, size);
-		send(buffer);
+	void json(const JsonDocument & doc) {
+		if (headerPending) {
+			setHeader("Content-Type", "application/json");
+			sendHeader();
+		}
+
+		WriteBufferingClient buffer(client, 64);
+		int bytes = serializeJson(doc, buffer);
+		println("Transfered: ", bytes, " bytes");
+	}
+
+	void sendFile(const char * filepath, KPDataStoreInterface & store) {
+		if (headerPending) {
+			setHeader("Transfer-Encoding", "chunked");
+			sendHeader();
+		}
+
+		// Chunk encoding
+		const size_t bufferSize = 1400;
+		char buffer[bufferSize]{0};
+		int charsRead = 0;
+		while ((charsRead = store.loadContentOfFile(filepath, buffer, bufferSize))) {
+			client.printf("%X\r\n", charsRead);
+			client.write(buffer, charsRead);
+			client.flush();
+		}
+
+		// Chunk terminator
+		if (charsRead == 0) {
+			client.print("0\r\n");
+		}
 	}
 
 	void end() {

@@ -32,13 +32,14 @@ public:
 	uint8_t status = WL_IDLE_STATUS;
 	bool isRunning = false;
 
-	KPArray<RequestHandler, 20> handlers;
+	std::vector<RequestHandler> handlers;
 	WiFiServer server;
 
 	const size_t TCP_LIMIT = 1400;
 
 	KPServer(const char * name, const char * ssid, const char * pass, const size_t tcp_limit = 1400)
-		: KPComponent(name), ssid(ssid), pass(pass), server(80), TCP_LIMIT(tcp_limit) {}
+		: KPComponent(name), ssid(ssid), pass(pass), server(80), TCP_LIMIT(tcp_limit) {
+	}
 
 	void setup() override {
 		WiFi.setPins(8, 7, 4, 2);
@@ -101,6 +102,8 @@ public:
 				}
 			}
 
+			// println(httpRequest);
+
 			// Construct a request object and handle accordingly
 			client.flush();
 			Request request(httpRequest, client);
@@ -109,7 +112,7 @@ public:
 	}
 
 	void on(const char * path, const char * method, EndPointCallback callback) {
-		handlers.append(RequestHandler(path, method, callback));
+		handlers.push_back(RequestHandler(path, method, callback));
 	}
 
 	void get(const char * path, EndPointCallback callback) {
@@ -120,11 +123,11 @@ public:
 		on(path, HTTP_POST, callback);
 	}
 
-	void serveStaticFile(const char * path, const char * filepath, KPDataStoreInterface & store) {
+	void serveStaticFile(const char * path, const char * filepath, KPDataStoreInterface & store, const char * contentType) {
 		on(path, HTTP_GET, [=, &store](Request & req, Response & res) {
 			constexpr int size = 1400;
 			char buffer[size]{0};
-			res.setHeader("Content-Type", "text/html");
+			res.setHeader("Content-Type", contentType);
 			while (store.loadContentOfFile(filepath, buffer, size)) {
 				res.send(buffer);
 			}
@@ -138,11 +141,18 @@ public:
 	void handleRequest(Request & req) {
 		WiFiClient & client = req.client;
 		Response res(client, TCP_LIMIT);
-		for (unsigned int i = 0; i < handlers.size(); i++) {
-			if (strcmp(handlers[i].path, req.path) == 0 && strcmp(handlers[i].method, req.method) == 0) {
-				println("Routing to", handlers[i].path);
-				printFreeRam();
-				handlers[i].callback(req, res);
+
+		// Preflight
+		if (strcmp(req.method, "OPTIONS") == 0) {
+			// client.println("Access-Control-Allow-Origin: *");
+			return;
+		}
+
+		for (auto & handler : handlers) {
+			if (strcmp(handler.path, req.path) == 0 && strcmp(handler.method, req.method) == 0) {
+				println("Routing to", handler.path);
+				// printFreeRam();
+				handler.callback(req, res);
 				return;
 			}
 		}

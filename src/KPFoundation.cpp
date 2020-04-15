@@ -15,9 +15,13 @@ void printFreeRam() {
 
 void raise(Error e, long ms) {
 	while (true) {
-		Serial.printf("%s: %s\n", e.name ? e.name : "Error", e.message);
+		println(e);
 		delay(ms);
 	}
+}
+
+void raise(const char * error, long ms) {
+	raise(Error(error), ms);
 }
 
 int strcmpi(const char * left, const char * right) {

@@ -11,8 +11,7 @@ private:
 	size_t _size = 0;
 
 public:
-	KPArray<T, N>() {
-	}
+	KPArray<T, N>() {}
 
 	size_t size() const {
 		return _size;
@@ -24,38 +23,6 @@ public:
 
 	std::array<T, N> & getBuffer() {
 		return buffer;
-	}
-
-	typename std::array<T, N>::iterator begin() {
-		return buffer.begin();
-	}
-
-	typename std::array<T, N>::iterator begin() const {
-		return buffer.cbegin();
-	}
-
-	typename std::array<T, N>::iterator cbegin() const {
-		return buffer.cbegin();
-	}
-
-	typename std::array<T, N>::iterator crbegin() const {
-		return buffer.crbegin();
-	}
-
-	typename std::array<T, N>::iterator end() {
-		return buffer.begin() + _size;
-	}
-
-	typename std::array<T, N>::iterator end() const {
-		return buffer.cbegin() + _size;
-	}
-
-	typename std::array<T, N>::iterator cend() const {
-		return buffer.cbegin() + _size;
-	}
-
-	typename std::array<T, N>::iterator crend() const {
-		return buffer.crbegin() + _size;
 	}
 
 	void removeWithCondition(std::function<bool(const T & e)> condition) {
@@ -95,7 +62,47 @@ public:
 		return buffer[index];
 	}
 
+	size_t capacity() const {
+		return N;
+	}
+
 	operator bool() const {
 		return _size > 0;
+	}
+
+	//
+	// ─── ITERATOR COMPATABILIY ──────────────────────────────────────────────────────
+	//
+
+	typename std::array<T, N>::iterator begin() {
+		return buffer.begin();
+	}
+
+	typename std::array<T, N>::const_iterator begin() const {
+		return buffer.cbegin();
+	}
+
+	typename std::array<T, N>::const_iterator cbegin() const {
+		return buffer.cbegin();
+	}
+
+	typename std::array<T, N>::const_iterator crbegin() const {
+		return buffer.crbegin();
+	}
+
+	typename std::array<T, N>::iterator end() {
+		return buffer.begin() + _size;
+	}
+
+	typename std::array<T, N>::const_iterator end() const {
+		return buffer.cbegin() + _size;
+	}
+
+	typename std::array<T, N>::const_iterator cend() const {
+		return buffer.cbegin() + _size;
+	}
+
+	typename std::array<T, N>::const_iterator crend() const {
+		return buffer.crbegin() + _size;
 	}
 };

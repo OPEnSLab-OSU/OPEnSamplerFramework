@@ -12,7 +12,7 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- * 
+ *
  * This file is only used for compilation tesitng and not intended
  * to represent an actual project structure. For exmaples of how to
  * use this framework, please refer to eDNA or OPEnSampler2 [+_+]
@@ -20,18 +20,18 @@
 
 #ifndef UNIT_TEST
 
-#include <KPFoundation.hpp>
-#include <KPController.hpp>
-#include <KPArray.hpp>
 #include <KPAction.hpp>
+#include <KPApplicationRuntime.hpp>
+#include <KPArray.hpp>
+#include <KPController.hpp>
 #include <KPDataStoreInterface.hpp>
-#include <KPServer.hpp>
-#include <KPSDCard.hpp>
+#include <KPFoundation.hpp>
+#include <KPFileLoader.hpp>
 #include <KPSerialInput.hpp>
+#include <KPServer.hpp>
 #include <KPServerRequest.hpp>
 #include <KPServerResponse.hpp>
 #include <KPStateMachine.hpp>
-#include <KPApplicationRuntime.hpp>
 
 #define Power_Module_Pin	A0
 #define RTC_Interrupt_Pin	A1
@@ -52,7 +52,7 @@ class Application : public KPController, public KPSerialInputListener {
 private:
 	KPServer web{"Web Server", "eDNA-test", "password"};
 	KPStateMachine sm{"state-machine"};
-	KPSDCard card{"sd-card", SDCard_Pin};
+	KPFileLoader card{"sd-card", SDCard_Pin};
 	KPActionScheduler<10> scheduler{"scheduler"};
 
 	void commandReceived(const String & line) override {
@@ -67,8 +67,7 @@ public:
 		KPSerialInput::instance().addListener(this);
 	}
 
-	void update() override {
-	}
+	void update() override {}
 } app;
 
 // main.cpp

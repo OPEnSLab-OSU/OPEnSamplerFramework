@@ -37,9 +37,10 @@ void KPStateMachine::transitionTo(const char * name) {
 	// Move to new state
 	auto next = statesByName[name];
 	if (next) {
-		currentState = next;
-		currentState->begin();
 		println("Transitioned to ", next->getName());
+		currentState = next;
+		updateListeners();
+		currentState->begin();
 		currentState->enter(*this);
 	}
 }

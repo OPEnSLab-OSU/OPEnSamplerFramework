@@ -4,26 +4,35 @@
 #include <KPDataStoreInterface.hpp>
 #include <KPFoundation.hpp>
 
-class KPSDCard : public KPDataStoreInterface {
+class KPFileLoader : public KPDataStoreInterface {
 private:
 	int pin;
 
 public:
-	KPSDCard(const char* name, int pin)
+	KPFileLoader(const char * name, int pin)
 		: KPDataStoreInterface(name), pin(pin) {}
 
 	void setup() override {
 		SD.begin(pin);
 	}
 
-	int loadContentOfFile(const char* filepath, char* buffer, size_t bufferSize, int* charsRemaining = nullptr) override {
+	template <size_t N>
+	int loadContentOfFile(const char * filepath, char (&buffer)[N], int * charsRemaining = nullptr) {
+		return loadContentOfFile(filepath, buffer, N, charsRemaining);
+	}
+
+	int loadContentOfFile(const char * filepath, void * buffer, size_t bufferSize, int * charsRemaining = nullptr) {
+		return loadContentOfFile(filepath, buffer, bufferSize, charsRemaining);
+	}
+
+	int loadContentOfFile(const char * filepath, char * buffer, size_t bufferSize, int * charsRemaining = nullptr) override {
 		if (bufferSize <= 0 || buffer == nullptr || filepath == nullptr) {
 			raise(Exception::InvalidArgument.withMessage("loadContentOfFile"));
 		}
 
 		// Keep track of the position in the file
-		static size_t position			= 0;
-		static const char* prevFilepath = nullptr;
+		static size_t position			 = 0;
+		static const char * prevFilepath = nullptr;
 		if (prevFilepath == nullptr || strcmp(filepath, prevFilepath) != 0) {
 			position = 0;
 		}
@@ -55,17 +64,17 @@ public:
 		buffer[size] = 0;
 		file.seek(position);
 		file.read(buffer, size);
-		file.close();
 
 		position += size;
 
 		if (charsRemaining) {
 			*charsRemaining = file.size();
 		}
+		file.close();
 		return size;
 	}
 
-	int saveContentToFile(const char* filepath, char* buffer, size_t bufferSize, bool replaceContent = false) override {
+	int saveContentToFile(const char * filepath, char * buffer, size_t bufferSize, bool replaceContent = false) override {
 		File file = SD.open(filepath, FILE_WRITE);
 		if (replaceContent) file.seek(0);
 		file.write(buffer, bufferSize);

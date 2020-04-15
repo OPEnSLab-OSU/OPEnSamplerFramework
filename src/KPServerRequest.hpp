@@ -11,7 +11,6 @@ struct Request {
 
 	Request(char * httpRequest, WiFiClient & client)
 		: client(client) {
-		println(httpRequest);
 		char * endOfHeader = strstr(httpRequest, "\r\n\r\n");
 		endOfHeader[0]	   = 0;
 		method			   = strtok(httpRequest, " ");

@@ -1,9 +1,7 @@
-class KPTestApplication;
-
 #include <unity.h>
 
 #include <KPController.hpp>
-#include <KPSDCard.hpp>
+#include <KPFileLoader.hpp>
 #include <KPSerialInput.hpp>
 #include <KPServer.hpp>
 #include <KPStateMachine.hpp>
