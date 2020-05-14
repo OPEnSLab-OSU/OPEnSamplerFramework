@@ -49,12 +49,17 @@ public:
 	// enter and leave methods are required by subclasses
 	virtual void enter(KPStateMachine & sm) = 0;
 
-	// update is optional
+	// (optional) leave is called when leaving the state
 	virtual void leave(KPStateMachine & sm) {
 	}
 
+	// (optional) update provides runtime update while the state is true
 	virtual void update(KPStateMachine & sm) {
 	}
+
+	//
+	// virtual void setValuesFromJson(const JsonVariant & data) {
+	// }
 
 	unsigned long timeSinceLastTransition() const {
 		return millis() - startTime;
@@ -63,14 +68,14 @@ public:
 	void setTimeCondition(unsigned long time, std::function<void()> callback) {
 		if (currentSchedule == schedules.size()) {
 			schedules.push_back(KPStateSchedule(time, callback));
-			println("Adding new schedule");
+			// println("Adding new schedule");
 		} else {
 			schedules[currentSchedule] = KPStateSchedule(time, callback);
-			println("Updating schedule");
+			// println("Updating schedule");
 		}
 
-		println("Time arugment:", time);
-		println("Schedule Time:", schedules[currentSchedule].time);
+		// println("Time arugment:", time);
+		// println("Schedule Time:", schedules[currentSchedule].time);
 
 		currentSchedule++;
 	}
@@ -78,10 +83,10 @@ public:
 	void setCondition(std::function<bool()> condition, std::function<void()> callback) {
 		if (currentSchedule == schedules.size()) {
 			schedules.push_back(KPStateSchedule(condition, callback));
-			println("Adding new schedule");
+			// println("Adding new schedule");
 		} else {
 			schedules[currentSchedule] = KPStateSchedule(condition, callback);
-			println("Updating schedule");
+			// println("Updating schedule");
 		}
 
 		currentSchedule++;

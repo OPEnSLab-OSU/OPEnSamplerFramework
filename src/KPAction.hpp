@@ -13,7 +13,7 @@ public:
 
 public:
 	std::function<void()> callback;
-	KPStringBuilder<KPActionNameSize> name{"Undefined"};
+	KPStringBuilder<KPActionNameSize> name{"Unnamed"};
 	bool _enabled = false;
 
 	KPAction() {
@@ -129,7 +129,12 @@ public:
 };
 
 template <size_t N>
-void run(KPAction & action, KPActionScheduler<N> & scheduler) {
+void run(unsigned long delay, std::function<void()> callback, KPActionScheduler<N> & scheduler) {
+	run(KPAction(delay, callback), scheduler);
+}
+
+template <size_t N>
+void run(const KPAction & action, KPActionScheduler<N> & scheduler) {
 	scheduler.schedule(action);
 }
 
