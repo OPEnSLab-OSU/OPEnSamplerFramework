@@ -26,7 +26,7 @@ public:
 class KPState {
 	friend class KPStateMachine;
 
-private:
+public:
 	const char * name		= nullptr;
 	unsigned long startTime = 0;
 	size_t currentSchedule	= 0;

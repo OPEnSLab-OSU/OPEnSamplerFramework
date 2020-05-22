@@ -150,7 +150,7 @@ public:
 
 		for (auto & handler : handlers) {
 			if (strcmp(handler.path, req.path) == 0 && strcmp(handler.method, req.method) == 0) {
-				println("Routing to", handler.path);
+				// println("Routing to", handler.path);
 				// printFreeRam();
 				handler.callback(req, res);
 				return;

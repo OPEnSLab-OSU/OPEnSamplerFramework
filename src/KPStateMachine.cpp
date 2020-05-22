@@ -15,11 +15,10 @@ void KPStateMachine::update() {
 			if (!s.condition()) {
 				continue;
 			}
+
 			s.activated = true;
 			s.callback();
-		}
-
-		if (!s.activated && currentState->timeSinceLastTransition() >= s.time) {
+		} else if (!s.activated && currentState->timeSinceLastTransition() >= s.time) {
 			s.activated = true;
 			s.callback();
 		}
@@ -37,7 +36,7 @@ void KPStateMachine::transitionTo(const char * name) {
 	// Move to new state
 	auto next = statesByName[name];
 	if (next) {
-		println("Transitioned to ", next->getName());
+		// println("Transitioned to ", next->getName());
 		currentState = next;
 		updateListeners();
 		currentState->begin();

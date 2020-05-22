@@ -21,7 +21,7 @@ public:
 	static const char * printSeparator;
 };
 
-#define secsToMillis(x) ((x)*1000)
+#define secsToMillis(x) ((x) *1000)
 #define millisToSecs(x) ((x) / 1000)
 
 class Error;
@@ -62,7 +62,7 @@ void print(const T & value) {
 
 template <>
 inline void print(const time_t & value) {
-	Serial.print((long)value);
+	Serial.print((long) value);
 }
 
 template <typename T, typename... Types>
@@ -84,7 +84,7 @@ inline void println(const T & value) {
 
 template <>
 inline void println(const time_t & value) {
-	Serial.println((long)value);
+	Serial.println((long) value);
 }
 
 template <typename T, typename... Types>
@@ -93,6 +93,36 @@ void println(const T & first, const Types &... args) {
 	Serial.print(PrintConfig::printSeparator);
 	println(args...);
 }
+
+class KPString {
+private:
+	const char * ptr = nullptr;
+
+public:
+	KPString()				   = default;
+	KPString(const KPString &) = default;
+	KPString & operator=(const KPString &) = default;
+
+	KPString(const char * _ptr)
+		: ptr(_ptr) {}
+
+	KPString & operator=(const char * rhs) {
+		ptr = rhs;
+		return *this;
+	}
+
+	bool operator==(const char * rhs) const {
+		return strcmp(ptr, rhs) == 0;
+	}
+
+	bool operator!=(const char * rhs) const {
+		return !(*this == rhs);
+	}
+
+	operator const char *() const {
+		return ptr;
+	}
+};
 
 class KPClearableString : public String {
 public:

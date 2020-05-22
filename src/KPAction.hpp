@@ -106,7 +106,7 @@ public:
 	}
 
 	void update() override {
-		for (int i = 0; i < (int)buffer.size(); i++) {
+		for (int i = 0; i < (int) buffer.size(); i++) {
 			auto & action = buffer[i];
 			// println(action.name);
 			if (action.timeElapsed(millis()) >= action.delay && action.enabled()) {
@@ -128,32 +128,32 @@ public:
 	}
 };
 
-template <size_t N>
-void run(unsigned long delay, std::function<void()> callback, KPActionScheduler<N> & scheduler) {
-	run(KPAction(delay, callback), scheduler);
-}
+// template <size_t N>
+// void run(unsigned long delay, std::function<void()> callback, KPActionScheduler<N> & scheduler) {
+// 	run(KPAction(delay, callback), scheduler);
+// }
 
-template <size_t N>
-void run(const KPAction & action, KPActionScheduler<N> & scheduler) {
-	scheduler.schedule(action);
-}
+// template <size_t N>
+// void run(const KPAction & action, KPActionScheduler<N> & scheduler) {
+// 	scheduler.schedule(action);
+// }
 
-template <size_t N>
-void runForever(KPAction & action, KPActionScheduler<N> & scheduler) {
-	action.repeat = -1;
-	scheduler.schedule(action);
-}
+// template <size_t N>
+// void runForever(KPAction & action, KPActionScheduler<N> & scheduler) {
+// 	action.repeat = -1;
+// 	scheduler.schedule(action);
+// }
 
-template <size_t K, size_t N>
-void run(KPActionChain<K> & chain, KPActionScheduler<N> & scheduler) {
-	for (KPAction & a : chain.actions()) {
-		run(a, scheduler);
-	}
-}
+// template <size_t K, size_t N>
+// void run(KPActionChain<K> & chain, KPActionScheduler<N> & scheduler) {
+// 	for (KPAction & a : chain.actions()) {
+// 		run(a, scheduler);
+// 	}
+// }
 
-template <size_t K, size_t N>
-void runForever(KPActionChain<K> & chain, KPActionScheduler<N> & scheduler) {
-	for (KPAction & a : chain.actions()) {
-		runForever(a, scheduler);
-	}
-}
+// template <size_t K, size_t N>
+// void runForever(KPActionChain<K> & chain, KPActionScheduler<N> & scheduler) {
+// 	for (KPAction & a : chain.actions()) {
+// 		runForever(a, scheduler);
+// 	}
+// }
