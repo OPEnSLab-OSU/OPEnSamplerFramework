@@ -20,7 +20,7 @@
 
 #ifndef UNIT_TEST
 
-#include <KPAction.hpp>
+#include <Action.hpp>
 #include <KPApplicationRuntime.hpp>
 #include <KPArray.hpp>
 #include <KPController.hpp>
@@ -53,7 +53,6 @@ private:
 	KPServer web{"Web Server", "eDNA-test", "password"};
 	KPStateMachine sm{"state-machine"};
 	KPFileLoader card{"sd-card", SDCard_Pin};
-	KPActionScheduler<10> scheduler{"scheduler"};
 
 	void commandReceived(const String & line) override {
 		println(line);
@@ -77,5 +76,6 @@ void setup() {
 
 void loop() {
 	Runtime::update();
+	ActionScheduler::sharedInstance().update();
 }
 #endif
