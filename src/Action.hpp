@@ -106,6 +106,6 @@ inline void runForever(long delay, const char * name, std::function<void()> call
 	ActionScheduler::sharedInstance().add(action);
 }
 
-inline void removeAction(const char * name) {
+inline void cancelAction(const char * name) {
 	ActionScheduler::sharedInstance().markForRemoval(name);
 }
