@@ -4,7 +4,7 @@ Verbosity PrintConfig::printVerbose		 = PrintConfig::defaultPrintVerbose;
 const char * PrintConfig::printSeparator = "";
 
 int free_ram() {
-	char stack_dummy = 0;
+	char stack_dummy;
 	return &stack_dummy - sbrk(0);
 }
 

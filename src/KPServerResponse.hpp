@@ -79,10 +79,10 @@ public:
 	template <size_t N>
 	void send(const char (&data)[N]) {
 		if (N > TCP_LIMIT) {
-			PrintConfig::printVerbose = Verbosity::info;
+			PrintConfig::setPrintVerbose(Verbosity::info);
 			println("Warning: data exeeds TCP limit. All or some of it may be lost.");
 			println("Try to reduce the amount of data sent at once to be below ", TCP_LIMIT, " bytes");
-			PrintConfig::printVerbose = Verbosity::debug;
+			PrintConfig::setDefaultVerbose();
 		}
 
 		if (headerPending) {

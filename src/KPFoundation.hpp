@@ -14,14 +14,33 @@ enum class Verbosity : int {
 };
 
 struct PrintConfig {
-public:
-	PrintConfig()							   = delete;
-	static const Verbosity defaultPrintVerbose = Verbosity::debug;
+private:
 	static Verbosity printVerbose;
+
+public:
+#ifdef DEBUG
+	static const Verbosity defaultPrintVerbose = Verbosity::debug;
+#else
+	static const Verbosity defaultPrintVerbose = Verbosity::error;
+#endif
+
+	PrintConfig() = delete;
 	static const char * printSeparator;
+
+	static Verbosity getPrintVerbose() {
+		return printVerbose;
+	}
+
+	static void setPrintVerbose(Verbosity level) {
+		printVerbose = level;
+	}
+
+	static void setDefaultVerbose() {
+		printVerbose = defaultPrintVerbose;
+	}
 };
 
-#define secsToMillis(x) ((x) *1000)
+#define secsToMillis(x) ((x)*1000)
 #define millisToSecs(x) ((x) / 1000)
 
 class Error;
@@ -55,14 +74,14 @@ public:
 //=============================================================================
 template <typename T>
 void print(const T & value) {
-	if (PrintConfig::printVerbose <= PrintConfig::defaultPrintVerbose) {
+	if (PrintConfig::getPrintVerbose() <= PrintConfig::defaultPrintVerbose) {
 		Serial.print(value);
 	}
 }
 
 template <>
 inline void print(const time_t & value) {
-	Serial.print((long) value);
+	Serial.print((long)value);
 }
 
 template <typename T, typename... Types>
@@ -84,7 +103,7 @@ inline void println(const T & value) {
 
 template <>
 inline void println(const time_t & value) {
-	Serial.println((long) value);
+	Serial.println((long)value);
 }
 
 template <typename T, typename... Types>

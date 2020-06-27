@@ -66,18 +66,20 @@ public:
 	}
 
 	void setTimeCondition(unsigned long time, std::function<void()> callback) {
+		PrintConfig::setPrintVerbose(Verbosity::debug);
 		if (currentSchedule == schedules.size()) {
 			schedules.push_back(KPStateSchedule(time, callback));
-			// println("Adding new schedule");
+			println("Adding new schedule");
 		} else {
 			schedules[currentSchedule] = KPStateSchedule(time, callback);
-			// println("Updating schedule");
+			println("Updating schedule");
 		}
 
-		// println("Time arugment:", time);
-		// println("Schedule Time:", schedules[currentSchedule].time);
+		println("Time arugment:", time);
+		println("Schedule Time:", schedules[currentSchedule].time);
 
 		currentSchedule++;
+		PrintConfig::setDefaultVerbose();
 	}
 
 	void setCondition(std::function<bool()> condition, std::function<void()> callback) {
