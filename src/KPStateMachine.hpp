@@ -16,7 +16,7 @@ private:
 public:
 	using KPComponent::KPComponent;
 
-	static KPStateMachine & instance() {
+	static KPStateMachine & sharedInstance() {
 		static KPStateMachine machine("default-state-machine");
 		return machine;
 	}

@@ -4,11 +4,14 @@
 #include <KPSerialInputObserver.hpp>
 #include <vector>
 
-class KPSerialInput : public KPSubject<KPSerialInputObserver> {
+class KPSerialInput : public KPComponent,
+					  public KPSubject<KPSerialInputObserver> {
 private:
 	KPClearableString input;
 
 public:
+	using KPComponent::KPComponent;
+
 	void update() {
 		while (Serial.available() > 0) {
 			char inputChar = Serial.read();
@@ -28,8 +31,8 @@ public:
 		}
 	}
 
-	static KPSerialInput & instance() {
-		static KPSerialInput serial;
+	static KPSerialInput & sharedInstance() {
+		static KPSerialInput serial("shared-serial-input");
 		return serial;
 	}
 };

@@ -63,7 +63,7 @@ public:
 		Serial.begin(115200);
 		delay(3000);
 
-		KPSerialInput::instance().addObserver(*this);
+		KPSerialInput::sharedInstance().addObserver(*this);
 	}
 
 	void update() override {}

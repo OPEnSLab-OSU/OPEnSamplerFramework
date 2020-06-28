@@ -120,8 +120,6 @@ private:
 public:
 	KPString()				   = default;
 	KPString(const KPString &) = default;
-	KPString & operator=(const KPString &) = default;
-
 	KPString(const char * _ptr)
 		: ptr(_ptr) {}
 
@@ -269,7 +267,7 @@ public:
 	}
 
 	size_t printTo(Print & printer) const override {
-		return Serial.println(buffer);
+		return printer.println(buffer);
 	}
 
 	operator const char *() const {

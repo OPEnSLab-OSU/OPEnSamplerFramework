@@ -1,5 +1,4 @@
 #pragma once
-#include <Array>
 #include <KPFoundation.hpp>
 #include <map>
 
@@ -8,7 +7,7 @@ private:
 	std::map<const char *, KPComponent *> componentsByName;
 
 public:
-	virtual void setup() {}
+	virtual void setup() = 0;
 	virtual void update() {
 		for (auto & p : componentsByName) {
 			p.second->update();

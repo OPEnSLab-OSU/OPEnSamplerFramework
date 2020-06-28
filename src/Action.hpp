@@ -3,7 +3,6 @@
 #include <functional>
 #include <vector>
 
-class ActionScheduler;
 class TimedAction {
 public:
 	bool removable = false;
@@ -106,6 +105,6 @@ inline void runForever(long delay, const char * name, std::function<void()> call
 	ActionScheduler::sharedInstance().add(action);
 }
 
-inline void cancelAction(const char * name) {
+inline void cancel(const char * name) {
 	ActionScheduler::sharedInstance().markForRemoval(name);
 }
