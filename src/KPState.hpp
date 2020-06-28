@@ -46,20 +46,31 @@ public:
 		return name;
 	}
 
-	// enter and leave methods are required by subclasses
-	virtual void enter(KPStateMachine & sm) = 0;
+	/** ────────────────────────────────────────────────────────────────────────────
+	 *  @brief REQUIRED Subclass must override this method and specify the behavior 
+	 * when entering this state
+	 *
+	 *  @param machine
+	 *  ──────────────────────────────────────────────────────────────────────────── */
+	virtual void enter(KPStateMachine & machine) = 0;
 
-	// (optional) leave is called when leaving the state
-	virtual void leave(KPStateMachine & sm) {
-	}
+	/** ────────────────────────────────────────────────────────────────────────────
+	 *  @brief When override, this method is called just before the transition to new
+	 *  state
+	 *
+	 *  @param machine State machine owning this state
+	 *  ──────────────────────────────────────────────────────────────────────────── */
+	virtual void leave(KPStateMachine & machine) {}
 
-	// (optional) update provides runtime update while the state is true
-	virtual void update(KPStateMachine & sm) {
-	}
+	/** ────────────────────────────────────────────────────────────────────────────
+	 *  @brief Override to receive runtime lifecycle loop while in this state
+	 *
+	 *  @param machine State machine owning this state
+	 *  ──────────────────────────────────────────────────────────────────────────── */
+	virtual void update(KPStateMachine & machine) {}
 
-	//
-	// virtual void setValuesFromJson(const JsonVariant & data) {
-	// }
+	// TODO: Maybe a good idea
+	// virtual void setValuesFromJson(const JsonVariant & data) {}
 
 	unsigned long timeSinceLastTransition() const {
 		return millis() - startTime;
@@ -83,6 +94,7 @@ public:
 	}
 
 	void setCondition(std::function<bool()> condition, std::function<void()> callback) {
+		PrintConfig::setPrintVerbose(Verbosity::debug);
 		if (currentSchedule == schedules.size()) {
 			schedules.push_back(KPStateSchedule(condition, callback));
 			// println("Adding new schedule");
@@ -92,5 +104,6 @@ public:
 		}
 
 		currentSchedule++;
+		PrintConfig::setDefaultVerbose();
 	}
 };

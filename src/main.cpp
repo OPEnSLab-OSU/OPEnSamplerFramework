@@ -22,7 +22,6 @@
 
 #include <Action.hpp>
 #include <KPApplicationRuntime.hpp>
-#include <KPArray.hpp>
 #include <KPController.hpp>
 #include <KPDataStoreInterface.hpp>
 #include <KPFoundation.hpp>
@@ -32,6 +31,7 @@
 #include <KPServerRequest.hpp>
 #include <KPServerResponse.hpp>
 #include <KPStateMachine.hpp>
+#include <KPSerialInputObserver.hpp>
 
 #define Power_Module_Pin	A0
 #define RTC_Interrupt_Pin	A1
@@ -48,7 +48,7 @@
 #define Button_Pin			13
 
 // Application.hpp
-class Application : public KPController, public KPSerialInputListener {
+class Application : public KPController, public KPSerialInputObserver {
 private:
 	KPServer web{"Web Server", "eDNA-test", "password"};
 	KPStateMachine sm{"state-machine"};
@@ -63,7 +63,7 @@ public:
 		Serial.begin(115200);
 		delay(3000);
 
-		KPSerialInput::instance().addListener(this);
+		KPSerialInput::instance().addObserver(*this);
 	}
 
 	void update() override {}

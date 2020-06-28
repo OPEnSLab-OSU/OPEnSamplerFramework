@@ -1,7 +1,6 @@
 #pragma once
 #include <WiFi101.h>
 
-#include <KPArray.hpp>
 #include <KPFoundation.hpp>
 #include <KPServerRequest.hpp>
 #include <KPServerResponse.hpp>

@@ -38,8 +38,8 @@ void KPStateMachine::transitionTo(const char * name) {
 	if (next) {
 		// println("Transitioned to ", next->getName());
 		currentState = next;
-		updateListeners();
 		currentState->begin();
+		updateObservers(&KPStateMachineObserver::stateDidBegin, currentState);
 		currentState->enter(*this);
 	}
 }

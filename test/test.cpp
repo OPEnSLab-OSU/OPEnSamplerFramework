@@ -5,18 +5,7 @@
 #include <KPSerialInput.hpp>
 #include <KPServer.hpp>
 #include <KPStateMachine.hpp>
-#include <KPAction.hpp>
 #include <KPApplicationRuntime.hpp>
-
-void TestActions() {
-	println("TESTING: TestActions");
-	KPAction action;
-	TEST_ASSERT(action.name == "Undefined");
-
-	KPArray<KPStringBuilder<20>, 10> builders;
-	builders.append(KPStringBuilder<20>("Hi there"));
-	TEST_ASSERT(builders[0] == "Hi there");
-}
 
 void TestStringConstructors() {
 	println("TESTING: TestStringConstructors");
@@ -51,7 +40,6 @@ void setup() {
 	delay(5000);
 	UNITY_BEGIN();
 	RUN_TEST(TestStringConstructors);
-	RUN_TEST(TestActions);
 	UNITY_END();
 }
 

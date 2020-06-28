@@ -1,23 +1,17 @@
 #pragma once
-
 #include <KPFoundation.hpp>
+#include <KPSubject.hpp>
+#include <KPStateMachineObserver.hpp>
 #include <unordered_map>
 #include <vector>
 
-class KPStateMachine;
-class KPStateMachineListener {
-public:
-	virtual void stateTransitioned(const KPStateMachine & sm) = 0;
-};
-
 class KPState;
-class KPStateMachine : public KPComponent {
+class KPStateMachine : public KPComponent,
+					   public KPSubject<KPStateMachineObserver> {
 private:
 	std::unordered_map<const char *, KPState *> statesByName;
 	std::unordered_map<KPState *, int> statesIndexMap;
 	KPState * currentState = nullptr;
-
-	std::vector<KPStateMachineListener *> listeners;
 
 public:
 	using KPComponent::KPComponent;
@@ -68,16 +62,6 @@ public:
 
 	int getCurrentStateIndex() const {
 		return currentState ? statesIndexMap.at(currentState) : -1;
-	}
-
-	void updateListeners() {
-		for (auto listener : listeners) {
-			listener->stateTransitioned(*this);
-		}
-	}
-
-	void addListener(KPStateMachineListener * listener) {
-		listeners.push_back(listener);
 	}
 
 	void transitionTo(const char * name);
