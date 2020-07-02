@@ -32,7 +32,7 @@ public:
 	}
 
 	template <typename F, typename... Types>
-	void updateObservers(F method, Types... args) {
+	void updateObservers(F method, Types &&... args) {
 		println("Updating ", ObserverType::ObserverName());
 		for (auto & k : observers) {
 			(k.second->*method)(args...);
