@@ -26,7 +26,7 @@ public:
 class KPState {
 	friend class KPStateMachine;
 
-public:
+protected:
 	const char * name		= nullptr;
 	unsigned long startTime = 0;
 	size_t currentSchedule	= 0;
@@ -37,11 +37,11 @@ public:
 		currentSchedule = 0;
 	}
 
-public:
 	void reserve(size_t size) {
 		schedules.reserve(size);
 	}
 
+public:
 	const char * getName() const {
 		return name;
 	}
@@ -97,10 +97,10 @@ public:
 		PrintConfig::setPrintVerbose(Verbosity::debug);
 		if (currentSchedule == schedules.size()) {
 			schedules.push_back(KPStateSchedule(condition, callback));
-			// println("Adding new schedule");
+			println("Adding new schedule");
 		} else {
 			schedules[currentSchedule] = KPStateSchedule(condition, callback);
-			// println("Updating schedule");
+			println("Updating schedule");
 		}
 
 		currentSchedule++;
