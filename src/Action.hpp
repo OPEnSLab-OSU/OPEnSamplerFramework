@@ -5,10 +5,10 @@
 
 class TimedAction {
 public:
-	bool removable = false;
-	long start	   = 0;
-	long interval  = 0;
-	char repeatFor = 0;
+	bool removable		  = false;
+	long start			  = 0;
+	long interval		  = 0;
+	signed char repeatFor = 0;
 	KPString name;
 
 	std::function<void()> callback;
@@ -66,6 +66,7 @@ public:
 		for (auto & action : actions) {
 			if (action.isReady()) {
 				action.callback();
+				println(action.repeatFor);
 			} else {
 				continue;
 			}
