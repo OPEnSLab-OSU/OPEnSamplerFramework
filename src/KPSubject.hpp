@@ -33,8 +33,8 @@ public:
 
 	template <typename F, typename... Types>
 	void updateObservers(F method, Types &&... args) {
-		println("Updating ", ObserverType::ObserverName());
 		for (auto & k : observers) {
+			println("Updating ", k.second->ObserverName());
 			(k.second->*method)(args...);
 			// std::bind(method, k.second, args...)();
 		}

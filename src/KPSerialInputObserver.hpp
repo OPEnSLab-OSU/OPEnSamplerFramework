@@ -4,7 +4,11 @@
 
 class KPSerialInputObserver : public KPObserver {
 public:
-	static const char * ObserverName() {
+	const char * ObserverName() const {
+		return KPSerialInputObserverName();
+	}
+
+	virtual const char * KPSerialInputObserverName() const {
 		return "<Unnamed> Serial Input Observer";
 	}
 	virtual void commandReceived(const String & line) = 0;

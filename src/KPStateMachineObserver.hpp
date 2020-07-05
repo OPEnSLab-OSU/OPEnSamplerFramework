@@ -4,7 +4,11 @@
 class KPState;
 class KPStateMachineObserver : public KPObserver {
 public:
-	static const char * ObserverName() {
+	const char * ObserverName() const {
+		return KPStateMachineObserverName();
+	}
+
+	virtual const char * KPStateMachineObserverName() const {
 		return "<Unnamed> State Machine Observer";
 	}
 

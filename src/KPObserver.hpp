@@ -2,7 +2,7 @@
 
 class KPObserver {
 public:
-	static const char * ObserverName() {
+	virtual const char * ObserverName() const {
 		return "<Unnamed> Observer";
 	}
 };
