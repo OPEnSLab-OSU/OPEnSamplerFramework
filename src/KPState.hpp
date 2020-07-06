@@ -82,14 +82,14 @@ public:
 		PrintConfig::setPrintVerbose(Verbosity::debug);
 		if (currentSchedule == schedules.size()) {
 			schedules.push_back(KPStateSchedule(seconds * 1000, callback));
-			println("Adding new schedule");
+			// println("Adding new schedule");
 		} else {
 			schedules[currentSchedule] = KPStateSchedule(seconds * 1000, callback);
-			println("Updating schedule");
+			// println("Updating schedule");
 		}
 
-		println("Time argument: ", seconds * 1000);
-		println("Schedule Time: ", schedules[currentSchedule].time);
+		// println("Time argument: ", seconds * 1000);
+		// println("Schedule Time: ", schedules[currentSchedule].time);
 
 		currentSchedule++;
 		PrintConfig::setDefaultVerbose();
@@ -99,10 +99,10 @@ public:
 		PrintConfig::setPrintVerbose(Verbosity::debug);
 		if (currentSchedule == schedules.size()) {
 			schedules.push_back(KPStateSchedule(condition, callback));
-			println("Adding new schedule");
+			// println("Adding new schedule");
 		} else {
 			schedules[currentSchedule] = KPStateSchedule(condition, callback);
-			println("Updating schedule");
+			// println("Updating schedule");
 		}
 
 		currentSchedule++;
