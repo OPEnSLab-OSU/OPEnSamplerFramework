@@ -16,17 +16,15 @@ public:
 		while (Serial.available() > 0) {
 			char inputChar = Serial.read();
 			if (inputChar == '\n') {
-				println();
+				print("> ");
 				updateObservers(&KPSerialInputObserver::commandReceived, input);
 				input.clear();
-				print("> ");
 				return;
 			}
 
 			// Ignore System characters
 			if (inputChar >= 32) {
 				input += inputChar;
-				print(inputChar);
 			}
 		}
 	}

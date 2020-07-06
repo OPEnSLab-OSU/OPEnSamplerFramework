@@ -67,17 +67,16 @@ public:
 	}
 
 	template <typename T>
-	void send(const T & data) {
+	size_t send(const T & data) {
 		if (headerPending) {
 			sendHeader();
 		}
 
-		client.print(data);
-		// client.write(data);
+		return client.print(data);
 	}
 
 	template <size_t N>
-	void send(const char (&data)[N]) {
+	size_t send(const char (&data)[N]) {
 		if (N > TCP_LIMIT) {
 			PrintConfig::setPrintVerbose(Verbosity::info);
 			println("Warning: data exeeds TCP limit. All or some of it may be lost.");
@@ -89,21 +88,20 @@ public:
 			sendHeader();
 		}
 
-		client.print(data);
+		return client.print(data);
 	}
 
-	void json(const JsonDocument & doc) {
+	size_t json(const JsonDocument & doc) {
 		if (headerPending) {
 			setHeader("Content-Type", "application/json");
 			sendHeader();
 		}
 
 		WriteBufferingClient buffer(client, 64);
-		int bytes = serializeJson(doc, buffer);
-		println("Transfered: ", bytes, " bytes");
+		return serializeJson(doc, buffer);
 	}
 
-	void sendFile(const char * filepath, KPDataStoreInterface & store) {
+	size_t sendFile(const char * filepath, KPDataStoreInterface & store) {
 		if (headerPending) {
 			setHeader("Transfer-Encoding", "chunked");
 			sendHeader();
@@ -113,16 +111,20 @@ public:
 		const size_t bufferSize = 1400;
 		char buffer[bufferSize]{0};
 		int charsRead = 0;
-		while ((charsRead = store.loadContentOfFile(filepath, buffer, bufferSize))) {
+		size_t total  = 0;
+		while ((charsRead = store.loadContentOfFile(filepath, buffer, bufferSize)) > 0) {
 			client.printf("%X\r\n", charsRead);
 			client.write(buffer, charsRead);
 			client.flush();
+			total += charsRead;
 		}
 
 		// Chunk terminator
 		if (charsRead == 0) {
 			client.print("0\r\n");
 		}
+
+		return total + 1;
 	}
 
 	void end() {
