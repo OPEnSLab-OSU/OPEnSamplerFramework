@@ -30,11 +30,13 @@ protected:
 	const char * name		= nullptr;
 	unsigned long startTime = 0;
 	size_t currentSchedule	= 0;
+	bool didEnter			= false;
 	std::vector<KPStateSchedule> schedules;
 
 	void begin() {
 		startTime		= millis();
 		currentSchedule = 0;
+		didEnter		= false;
 	}
 
 	void reserve(size_t size) {

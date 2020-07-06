@@ -10,6 +10,11 @@ void KPStateMachine::update() {
 		return;
 	}
 
+	if (!currentState->didEnter) {
+		currentState->didEnter = true;
+		currentState->enter(*this);
+	}
+
 	for (KPStateSchedule & s : currentState->schedules) {
 		if (!s.activated && s.condition) {
 			if (!s.condition()) {
@@ -36,10 +41,9 @@ void KPStateMachine::transitionTo(const char * name) {
 	// Move to new state
 	auto next = statesByName[name];
 	if (next) {
-		// println("Transitioned to ", next->getName());
+		println("Begin ", next->getName());
 		currentState = next;
 		currentState->begin();
 		updateObservers(&KPStateMachineObserver::stateDidBegin, currentState);
-		currentState->enter(*this);
 	}
 }

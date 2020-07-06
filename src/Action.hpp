@@ -66,7 +66,6 @@ public:
 		for (auto & action : actions) {
 			if (action.isReady()) {
 				action.callback();
-				println(action.repeatFor);
 			} else {
 				continue;
 			}
