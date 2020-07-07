@@ -52,7 +52,6 @@ extern void raise(const char *, long ms = 3000);
 extern int strcmpi(const char *, const char *);
 
 class KPController;
-
 class KPComponent {
 public:
 	const char * name;
@@ -190,7 +189,6 @@ public:
 	// Construct from another KPStringBuilder
 	template <size_t N>
 	KPStringBuilder(const KPStringBuilder<N> & other) {
-		// println("Construct from another KPStringBuilder<", N, ">");
 		concat(other);
 	};
 
@@ -209,7 +207,6 @@ public:
 	// Copy assignment to another KPStringBuilder
 	template <size_t N>
 	KPStringBuilder<capacity> & operator=(const KPStringBuilder<N> & other) {
-		// println("Copy assignment to another KPStringBuilder<", N, ">");
 		size = 0;
 		concat(other);
 		return *this;
@@ -217,7 +214,6 @@ public:
 
 	// Copy assignment to const char *
 	KPStringBuilder & operator=(const char * cstr) {
-		// println("Copy assignment to const char *");
 		for (size = 0; size < capacity; size++) {
 			if (!cstr[size]) break;
 			buffer[size] = cstr[size];
@@ -236,8 +232,6 @@ public:
 	// Concatenate another KPStringBuilder
 	template <size_t N>
 	KPStringBuilder & concat(const KPStringBuilder<N> & other) {
-		// println("Concat from another KPStringBuilder<", N, "> which has
-		// size=", other.length());
 		const size_t new_size = std::min(capacity, size + other.length());
 		strncpy(buffer + size, other.c_str(), new_size - size);
 		size		 = new_size;
@@ -250,7 +244,6 @@ public:
 	// content over
 	template <typename T>
 	KPStringBuilder & concat(const T & first) {
-		// println("Concat from another type");
 		clearSharedBuffer();
 		sharedBuffer().concat(first);
 		strncpy(buffer + size, sharedBuffer().c_str(), capacity - size);
