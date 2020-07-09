@@ -35,8 +35,7 @@ public:
 	void updateObservers(F method, Types &&... args) {
 		for (auto & k : observers) {
 			println("Updating ", k.second->ObserverName());
-			(k.second->*method)(args...);
-			// std::bind(method, k.second, args...)();
+			(k.second->*method)(std::forward<Types>(args)...);
 		}
 	}
 };
