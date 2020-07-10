@@ -19,8 +19,9 @@ struct RequestHandler {
 	RequestHandler() {}
 
 	RequestHandler(const char * path, const char * method, EndPointCallback callback)
-		: path(path), method(method), callback(callback) {
-	}
+		: path(path),
+		  method(method),
+		  callback(callback) {}
 };
 
 class KPServer : public KPComponent {
@@ -37,8 +38,11 @@ public:
 	const size_t TCP_LIMIT = 1400;
 
 	KPServer(const char * name, const char * ssid, const char * pass, const size_t tcp_limit = 1400)
-		: KPComponent(name), ssid(ssid), pass(pass), server(80), TCP_LIMIT(tcp_limit) {
-	}
+		: KPComponent(name),
+		  ssid(ssid),
+		  pass(pass),
+		  server(80),
+		  TCP_LIMIT(tcp_limit) {}
 
 	void setup() override {
 		WiFi.setPins(8, 7, 4, 2);
@@ -122,7 +126,8 @@ public:
 		on(path, HTTP_POST, callback);
 	}
 
-	void serveStaticFile(const char * path, const char * filepath, KPDataStoreInterface & store, const char * contentType) {
+	void serveStaticFile(const char * path, const char * filepath, KPDataStoreInterface & store,
+						 const char * contentType) {
 		on(path, HTTP_GET, [=, &store](Request & req, Response & res) {
 			constexpr int size = 1400;
 			char buffer[size]{0};

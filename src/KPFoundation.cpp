@@ -1,27 +1,15 @@
 #include "KPFoundation.hpp"
 
-Verbosity PrintConfig::printVerbose		 = PrintConfig::defaultPrintVerbose;
-const char * PrintConfig::printSeparator = "";
+Verbosity PrintConfig::printVerbose = PrintConfig::defaultPrintVerbose;
+Stream * errorStream				= nullptr;
 
-int free_ram() {
+size_t free_ram() {
 	char stack_dummy;
 	return &stack_dummy - sbrk(0);
 }
 
-void printFreeRam() {
-	print("Free Memory: ");
-	println(free_ram());
-}
-
-void raise(Error e, long ms) {
-	while (true) {
-		println(e);
-		delay(ms);
-	}
-}
-
-void raise(const char * error, long ms) {
-	raise(Error(error), ms);
+size_t printFreeRam() {
+	return println("Free Memory: ", free_ram());
 }
 
 int strcmpi(const char * left, const char * right) {

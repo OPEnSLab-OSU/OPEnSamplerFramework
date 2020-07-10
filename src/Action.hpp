@@ -15,8 +15,7 @@ public:
 
 public:
 	TimedAction() = default;
-	TimedAction(const char * name)
-		: name(name) {}
+	TimedAction(const char * name) : name(name) {}
 
 	void begin() {
 		removable = false;
@@ -36,8 +35,7 @@ class ActionScheduler : public KPComponent {
 public:
 	std::vector<TimedAction> actions;
 
-	ActionScheduler(const char * name)
-		: KPComponent(name) {}
+	ActionScheduler(const char * name) : KPComponent(name) {}
 
 	void add(const TimedAction & action) {
 		actions.push_back(action);
@@ -53,9 +51,8 @@ public:
 	}
 
 	void removeCompletedActions() {
-		auto predicate = std::remove_if(actions.begin(), actions.end(), [](const TimedAction & a) {
-			return a.removable;
-		});
+		auto predicate = std::remove_if(actions.begin(), actions.end(),
+										[](const TimedAction & a) { return a.removable; });
 
 		actions.erase(predicate, actions.end());
 	}

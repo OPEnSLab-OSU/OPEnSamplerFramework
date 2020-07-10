@@ -14,13 +14,11 @@ public:
 	std::function<bool()> condition;
 	std::function<void()> callback;
 
-	KPStateSchedule(long time, std::function<void()> callback)
-		: time(time), callback(callback) {
-	}
+	KPStateSchedule(long time, std::function<void()> callback) : time(time), callback(callback) {}
 
 	KPStateSchedule(std::function<bool()> condition, std::function<void()> callback)
-		: condition(condition), callback(callback) {
-	}
+		: condition(condition),
+		  callback(callback) {}
 };
 
 class KPState {
@@ -49,7 +47,7 @@ public:
 	}
 
 	/** ────────────────────────────────────────────────────────────────────────────
-	 *  @brief REQUIRED Subclass must override this method and specify the behavior 
+	 *  @brief REQUIRED Subclass must override this method and specify the behavior
 	 * when entering this state
 	 *
 	 *  @param machine

@@ -6,8 +6,7 @@
 #include <vector>
 
 class KPState;
-class KPStateMachine : public KPComponent,
-					   public KPSubject<KPStateMachineObserver> {
+class KPStateMachine : public KPComponent, public KPSubject<KPStateMachineObserver> {
 private:
 	std::unordered_map<const char *, KPState *> statesByName;
 	std::unordered_map<KPState *, int> statesIndexMap;
@@ -40,7 +39,7 @@ public:
 	template <typename T>
 	void registerState(const T & state) {
 		if (state.name == nullptr) {
-			raise(Exception::InvalidArgument.withMessage("State must have a name"));
+			// raise(Exception::InvalidArgument.withMessage("State must have a name"));
 		}
 
 		registerState(state, state.name);

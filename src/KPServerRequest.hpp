@@ -9,8 +9,7 @@ struct Request {
 	char * body	  = nullptr;
 	WiFiClient & client;
 
-	Request(char * httpRequest, WiFiClient & client)
-		: client(client) {
+	Request(char * httpRequest, WiFiClient & client) : client(client) {
 		char * endOfHeader = strstr(httpRequest, "\r\n\r\n");
 		endOfHeader[0]	   = 0;
 		method			   = strtok(httpRequest, " ");
@@ -19,6 +18,5 @@ struct Request {
 		body			   = endOfHeader + 3;
 	}
 
-	void json() {
-	}
+	void json() {}
 };

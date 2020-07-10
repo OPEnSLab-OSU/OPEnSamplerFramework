@@ -9,25 +9,28 @@ private:
 	int pin;
 
 public:
-	KPFileLoader(const char * name, int pin)
-		: KPDataStoreInterface(name), pin(pin) {}
+	KPFileLoader(const char * name, int pin) : KPDataStoreInterface(name), pin(pin) {}
 
 	void setup() override {
 		SD.begin(pin);
 	}
 
 	template <size_t N>
-	int loadContentOfFile(const char * filepath, char (&buffer)[N], int * charsRemaining = nullptr) {
+	int loadContentOfFile(const char * filepath, char (&buffer)[N],
+						  int * charsRemaining = nullptr) {
 		return loadContentOfFile(filepath, buffer, N, charsRemaining);
 	}
 
-	int loadContentOfFile(const char * filepath, void * buffer, size_t bufferSize, int * charsRemaining = nullptr) {
+	int loadContentOfFile(const char * filepath, void * buffer, size_t bufferSize,
+						  int * charsRemaining = nullptr) {
 		return loadContentOfFile(filepath, buffer, bufferSize, charsRemaining);
 	}
 
-	int loadContentOfFile(const char * filepath, char * buffer, size_t bufferSize, int * charsRemaining = nullptr) override {
+	int loadContentOfFile(const char * filepath, char * buffer, size_t bufferSize,
+						  int * charsRemaining = nullptr) override {
 		if (bufferSize <= 0 || buffer == nullptr || filepath == nullptr) {
-			raise(Exception::InvalidArgument.withMessage("loadContentOfFile"));
+			println(TRACE, "Invalid arguments: ", bufferSize, " ", buffer, " ", filepath);
+			return -1;
 		}
 
 		// Keep track of the position in the file
@@ -74,9 +77,11 @@ public:
 		return size;
 	}
 
-	int saveContentToFile(const char * filepath, char * buffer, size_t bufferSize, bool replaceContent = false) override {
+	int saveContentToFile(const char * filepath, char * buffer, size_t bufferSize,
+						  bool replaceContent = false) override {
 		File file = SD.open(filepath, FILE_WRITE);
-		if (replaceContent) file.seek(0);
+		if (replaceContent)
+			file.seek(0);
 		file.write(buffer, bufferSize);
 		file.close();
 		return bufferSize;

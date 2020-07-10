@@ -18,8 +18,6 @@
  * use this framework, please refer to eDNA or OPEnSampler2 [+_+]
  */
 
-#ifndef UNIT_TEST
-
 #include <Action.hpp>
 #include <KPApplicationRuntime.hpp>
 #include <KPController.hpp>
@@ -78,4 +76,3 @@ void loop() {
 	Runtime::update();
 	ActionScheduler::sharedInstance().update();
 }
-#endif

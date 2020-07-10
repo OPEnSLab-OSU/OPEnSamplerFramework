@@ -46,8 +46,7 @@ private:
 public:
 	WiFiClient & client;
 	const size_t TCP_LIMIT;
-	Response(WiFiClient & client, const size_t tcp_limit)
-		: client(client), TCP_LIMIT(tcp_limit) {
+	Response(WiFiClient & client, const size_t tcp_limit) : client(client), TCP_LIMIT(tcp_limit) {
 		_notFound = [&]() {
 			client.println("HTTP/1.1 404 Not Found");
 			client.println("Connection: close");
@@ -80,7 +79,8 @@ public:
 		if (N > TCP_LIMIT) {
 			PrintConfig::setPrintVerbose(Verbosity::info);
 			println("Warning: data exeeds TCP limit. All or some of it may be lost.");
-			println("Try to reduce the amount of data sent at once to be below ", TCP_LIMIT, " bytes");
+			println("Try to reduce the amount of data sent at once to be below ", TCP_LIMIT,
+					" bytes");
 			PrintConfig::setDefaultVerbose();
 		}
 

@@ -4,10 +4,9 @@
 #include <KPSerialInputObserver.hpp>
 #include <vector>
 
-class KPSerialInput : public KPComponent,
-					  public KPSubject<KPSerialInputObserver> {
+class KPSerialInput : public KPComponent, public KPSubject<KPSerialInputObserver> {
 private:
-	KPClearableString input;
+	KPStringBuilder<255> input;
 
 public:
 	using KPComponent::KPComponent;
@@ -16,7 +15,6 @@ public:
 		while (Serial.available() > 0) {
 			char inputChar = Serial.read();
 			if (inputChar == '\n') {
-				print("> ");
 				updateObservers(&KPSerialInputObserver::commandReceived, input);
 				input.clear();
 				return;
@@ -24,7 +22,7 @@ public:
 
 			// Ignore System characters
 			if (inputChar >= 32) {
-				input += inputChar;
+				input.print(inputChar);
 			}
 		}
 	}
