@@ -22,6 +22,7 @@ public:
 		componentsByName[c->name] = c;
 		c->controller			  = this;
 		c->setup();
+		println(c->name, " setup");
 	}
 
 	template <typename T>

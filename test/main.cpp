@@ -52,7 +52,7 @@ private:
 	KPStateMachine sm{"state-machine"};
 	KPFileLoader card{"sd-card", SDCard_Pin};
 
-	void commandReceived(const String & line) override {
+	void commandReceived(const char * line) override {
 		println(line);
 	}
 

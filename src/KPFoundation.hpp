@@ -3,9 +3,10 @@
 #undef min
 #undef max
 
-#include <KPConfiguration.hpp>
 #include <algorithm>
 #include <numeric>
+
+#include <KPConfiguration.hpp>
 
 #define TRACE                                                                                      \
 	"[Trace", millis() / 1000, " ", __FILE__, ":", __LINE__, " in ", __PRETTY_FUNCTION__, "]: "
@@ -206,8 +207,12 @@ public:
 		return buffer;
 	}
 
-	operator String() const {
-		return String(c_str());
+	bool operator==(const char * rhs) const {
+		return strncmp(buffer, rhs, size()) == 0;
+	}
+
+	bool operator!=(const char * rhs) const {
+		return !(operator==(rhs));
 	}
 
 	size_t printTo(Print & printer) const override {

@@ -11,5 +11,5 @@ public:
 	virtual const char * KPSerialInputObserverName() const {
 		return "<Unnamed> Serial Input Observer";
 	}
-	virtual void commandReceived(const String & line) = 0;
+	virtual void commandReceived(const char * line) = 0;
 };
