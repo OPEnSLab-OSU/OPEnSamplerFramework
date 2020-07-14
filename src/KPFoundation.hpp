@@ -78,9 +78,10 @@ inline size_t printTo(Print & printer, time_t val) {
 }
 
 template <typename T0, typename T1>
-size_t printTo(Print & printer, std::pair<T0, T1> && val) {
+size_t printTo(Print & printer, std::pair<T0, T1> val) {
 	using namespace std;
-	return printTo(printer, "(", forward<T0>(val.first), ",", forward<T1>(val.second), ")");
+	return printer.print("(") + printTo(printer, val.first) + printer.print(",")
+		+ printTo(printer, val.second) + printer.print(")");
 }
 
 //...
