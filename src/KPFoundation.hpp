@@ -128,6 +128,12 @@ inline void halt() {
 	while (true) {}
 }
 
+template <typename... Types>
+void halt(Types &&... values) {
+	println(std::forward<Types>(values)...);
+	halt();
+}
+
 class KPString {
 private:
 	const char * ptr = nullptr;
