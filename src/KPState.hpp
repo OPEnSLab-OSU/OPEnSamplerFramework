@@ -10,11 +10,11 @@ private:
 	friend class KPStateMachine;
 
 public:
-	unsigned long time = 0;
 	std::function<bool()> condition;
 	std::function<void()> callback;
 
-	KPStateSchedule(long time, std::function<void()> callback) : time(time), callback(callback) {}
+	// KPStateSchedule(long time, std::function<void()> callback) : time(time), callback(callback)
+	// {}
 
 	KPStateSchedule(std::function<bool()> condition, std::function<void()> callback)
 		: condition(condition),
@@ -27,13 +27,13 @@ class KPState {
 protected:
 	const char * name		= nullptr;
 	unsigned long startTime = 0;
-	size_t currentSchedule	= 0;
 	bool didEnter			= false;
+	size_t numberOfSchedules	= 0;
 	std::vector<KPStateSchedule> schedules;
 
 	void begin() {
 		startTime		= millis();
-		currentSchedule = 0;
+		numberOfSchedules = 0;
 		didEnter		= false;
 	}
 
@@ -77,33 +77,17 @@ public:
 	}
 
 	void setTimeCondition(unsigned long seconds, std::function<void()> callback) {
-		PrintConfig::setPrintVerbose(Verbosity::debug);
-		if (currentSchedule == schedules.size()) {
-			schedules.push_back(KPStateSchedule(seconds * 1000, callback));
-			// println("Adding new schedule");
-		} else {
-			schedules[currentSchedule] = KPStateSchedule(seconds * 1000, callback);
-			// println("Updating schedule");
-		}
-
-		// println("Time argument: ", seconds * 1000);
-		// println("Schedule Time: ", schedules[currentSchedule].time);
-
-		currentSchedule++;
-		PrintConfig::setDefaultVerbose();
+		unsigned long millis = secsToMillis(seconds);
+		setCondition([this, millis]() { return timeSinceLastTransition() >= millis; }, callback);
 	}
 
 	void setCondition(std::function<bool()> condition, std::function<void()> callback) {
-		PrintConfig::setPrintVerbose(Verbosity::debug);
-		if (currentSchedule == schedules.size()) {
+		if (numberOfSchedules == schedules.size()) {
 			schedules.push_back(KPStateSchedule(condition, callback));
-			// println("Adding new schedule");
 		} else {
-			schedules[currentSchedule] = KPStateSchedule(condition, callback);
-			// println("Updating schedule");
+			schedules[numberOfSchedules] = KPStateSchedule(condition, callback);
 		}
 
-		currentSchedule++;
-		PrintConfig::setDefaultVerbose();
+		numberOfSchedules++;
 	}
 };

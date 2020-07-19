@@ -15,21 +15,28 @@ void KPStateMachine::update() {
 		currentState->enter(*this);
 	}
 
-	for (KPStateSchedule & s : currentState->schedules) {
-		if (!s.activated && s.condition) {
-			if (!s.condition()) {
-				continue;
-			}
-
-			s.activated = true;
-			s.callback();
-		} else if (!s.activated && currentState->timeSinceLastTransition() >= s.time) {
-			s.activated = true;
-			s.callback();
+	for (size_t i = 0; i < currentState->numberOfSchedules; i++) {
+		auto & s = currentState->schedules[i];
+		if (s.activated || !s.condition()) {
+			continue;
 		}
+
+		s.activated = true;
+		s.callback();
 	}
 
 	currentState->update(*this);
+}
+
+void KPStateMachine::next(int code) {
+	auto entry = mapNameToMiddleware.find(currentState->name);
+	if (entry != mapNameToMiddleware.end()) {
+		entry->second(code);
+	}
+}
+
+void KPStateMachine::restart() {
+	transitionTo(currentState ? currentState->name : nullptr);
 }
 
 void KPStateMachine::transitionTo(const char * name) {
@@ -39,7 +46,7 @@ void KPStateMachine::transitionTo(const char * name) {
 	}
 
 	// Move to new state
-	auto next = statesByName[name];
+	auto next = mapNameToState[name];
 	if (next) {
 		println("Begin ", next->getName());
 		currentState = next;

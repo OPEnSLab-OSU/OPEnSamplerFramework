@@ -183,15 +183,9 @@ public:
 
 	size_t write(const uint8_t * p, size_t n) override {
 		size_t bound = std::min(capacity - _size, n);
-		for (size_t i = 0; i < bound; i++) {
-			uint8_t c = p[i];
-			if (c == 0) {
-				return i;
-			} else {
-				write(c);
-			}
-		}
-
+		memcpy(buffer + _size, p, bound);
+		_size += bound;
+		buffer[_size] = 0;
 		return bound;
 	}
 
@@ -201,11 +195,13 @@ public:
 		}
 
 		buffer[_size++] = static_cast<char>(c);
+		buffer[_size]	= 0;
 		return 1;
 	}
 
 	void clear() {
-		_size = 0;
+		_size	  = 0;
+		buffer[0] = 0;
 	}
 
 	size_t size() const {

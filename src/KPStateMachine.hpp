@@ -8,46 +8,43 @@
 class KPState;
 class KPStateMachine : public KPComponent, public KPSubject<KPStateMachineObserver> {
 private:
-	std::unordered_map<const char *, KPState *> statesByName;
-	std::unordered_map<KPState *, int> statesIndexMap;
+	using Middleware = std::function<void(int)>;
+	std::unordered_map<const char *, KPState *> mapNameToState;
+	std::unordered_map<const char *, Middleware> mapNameToMiddleware;
 	KPState * currentState = nullptr;
 
 public:
 	using KPComponent::KPComponent;
 
-	static KPStateMachine & sharedInstance() {
-		static KPStateMachine machine("default-state-machine");
-		return machine;
-	}
-
 	template <typename T>
-	void registerState(const T & state, const char * name, int reserve_size = 0) {
-		if (statesByName.count(name)) {
-			println("State machine: ", name, " already exist");
-			return;
+	void registerState(T && state, const char * name, Middleware middleware = nullptr) {
+		if (mapNameToState.count(name)) {
+			halt(TRACE, name, " already exist");
 		}
 
-		T * copy			 = new T(state);
+		if (name == nullptr) {
+			halt(TRACE, "State must have a name");
+		}
+
+		T * copy			 = new T(std::forward<T>(state));
 		copy->name			 = name;
-		statesByName[name]	 = copy;
-		statesIndexMap[copy] = statesIndexMap.size();
-		if (reserve_size) {
-			copy->reserve(reserve_size);
+		mapNameToState[name] = copy;
+		if (middleware) {
+			mapNameToMiddleware[name] = middleware;
+		} else {
+			mapNameToMiddleware[name] = [](int code) { halt(TRACE, "Unhandled state transition"); };
 		}
 	}
 
 	template <typename T>
-	void registerState(const T & state) {
-		if (state.name == nullptr) {
-			// raise(Exception::InvalidArgument.withMessage("State must have a name"));
-		}
-
-		registerState(state, state.name);
+	void registerState(T && state, const char * name, const char * next_name) {
+		registerState(std::forward<T>(state), name,
+					  [this, next_name](int code) { transitionTo(next_name); });
 	}
 
 	template <typename T>
 	T * getState(const char * name) {
-		auto c = statesByName[name];
+		auto c = mapNameToState[name];
 		if (c) {
 			return static_cast<T *>(c);
 		} else {
@@ -59,11 +56,13 @@ public:
 		return currentState;
 	}
 
-	int getCurrentStateIndex() const {
-		return currentState ? statesIndexMap.at(currentState) : -1;
-	}
+	void next(int code = 0);
+
+	void restart();
 
 	void transitionTo(const char * name);
+
+protected:
 	void setup() override;
 	void update() override;
 };
