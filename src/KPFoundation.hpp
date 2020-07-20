@@ -8,8 +8,7 @@
 
 #include <KPConfiguration.hpp>
 
-#define TRACE                                                                                      \
-	"[Trace", millis() / 1000, " ", __FILE__, ":", __LINE__, " in ", __PRETTY_FUNCTION__, "]: "
+#define TRACE "[Trace", millis() / 1000, " ", __FILE__, ":", __LINE__, __PRETTY_FUNCTION__, "] "
 
 enum class Verbosity : int { none, error, info, debug };
 
@@ -81,7 +80,7 @@ template <typename T0, typename T1>
 size_t printTo(Print & printer, std::pair<T0, T1> val) {
 	using namespace std;
 	return printer.print("(") + printTo(printer, val.first) + printer.print(",")
-		+ printTo(printer, val.second) + printer.print(")");
+		   + printTo(printer, val.second) + printer.print(")");
 }
 
 //...
@@ -128,15 +127,12 @@ size_t println(Types... values) {
 	return print(std::forward<Types>(values)...) + println();
 }
 
-/** ────────────────────────────────────────────────────────────────────────────
- *  This function doesn't return
- *  ──────────────────────────────────────────────────────────────────────────── */
-inline void halt() {
+[[noreturn]] inline void halt() {
 	while (true) {}
 }
 
 template <typename... Types>
-void halt(Types &&... values) {
+[[noreturn]] void halt(Types &&... values) {
 	println(std::forward<Types>(values)...);
 	halt();
 }
@@ -146,21 +142,14 @@ private:
 	const char * ptr = nullptr;
 
 public:
-	KPString()				   = default;
-	KPString(const KPString &) = default;
+	KPString() = default;
 	KPString(const char * _ptr) : ptr(_ptr) {}
-
-	KPString & operator=(const char * rhs) {
-		ptr = rhs;
-		return *this;
-	}
-
 	bool operator==(const char * rhs) const {
 		return strcmp(ptr, rhs) == 0;
 	}
 
 	bool operator!=(const char * rhs) const {
-		return !(*this == rhs);
+		return !this->operator==(rhs);
 	}
 
 	operator const char *() const {
@@ -169,7 +158,7 @@ public:
 };
 
 template <size_t capacity>
-class KPStringBuilder : public Print, public Printable {
+class KPStringBuilder : public Print {
 private:
 	char buffer[capacity + 1]{0};
 	size_t _size = 0;
@@ -222,9 +211,5 @@ public:
 
 	bool operator!=(const char * rhs) const {
 		return !(operator==(rhs));
-	}
-
-	size_t printTo(Print & printer) const override {
-		return printer.print(c_str());
 	}
 };

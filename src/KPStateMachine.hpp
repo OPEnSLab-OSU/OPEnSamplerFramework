@@ -1,9 +1,7 @@
 #pragma once
-#include <KPFoundation.hpp>
 #include <KPSubject.hpp>
 #include <KPStateMachineObserver.hpp>
 #include <unordered_map>
-#include <vector>
 
 class KPState;
 class KPStateMachine : public KPComponent, public KPSubject<KPStateMachineObserver> {
@@ -26,13 +24,15 @@ public:
 			halt(TRACE, "State must have a name");
 		}
 
-		T * copy			 = new T(std::forward<T>(state));
+		T * copy			 = new T{std::forward<T>(state)};
 		copy->name			 = name;
 		mapNameToState[name] = copy;
 		if (middleware) {
 			mapNameToMiddleware[name] = middleware;
 		} else {
-			mapNameToMiddleware[name] = [](int code) { halt(TRACE, "Unhandled state transition"); };
+			mapNameToMiddleware[name] = [name](int code) {
+				halt(TRACE, "Unhandled state transition: ", name);
+			};
 		}
 	}
 
@@ -57,9 +57,7 @@ public:
 	}
 
 	void next(int code = 0);
-
 	void restart();
-
 	void transitionTo(const char * name);
 
 protected:
