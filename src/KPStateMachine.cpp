@@ -28,7 +28,7 @@ void KPStateMachine::update() {
 	currentState->update(*this);
 }
 
-void KPStateMachine::next(int code) {
+void KPStateMachine::next(int code) const {
 	auto entry = mapNameToMiddleware.find(currentState->name);
 	if (entry != mapNameToMiddleware.end()) {
 		entry->second(code);
