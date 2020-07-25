@@ -4,6 +4,7 @@
 #include <KPFoundation.hpp>
 #include <KPServerRequest.hpp>
 #include <KPServerResponse.hpp>
+#include <vector>
 #include <functional>
 
 #define HTTP_GET  "GET"
@@ -50,11 +51,9 @@ public:
 	}
 
 	void begin() {
-		WiFi.beginAP(ssid, pass);
-		while ((status = WiFi.status()) != WL_AP_LISTENING) {
-			WiFi.beginAP(ssid, pass);
-			println(F("WiFi AP Mode Failed to Initialize"));
-			println(F("Try again in "));
+		while ((status = WiFi.beginAP(ssid, pass)) != WL_AP_LISTENING) {
+			println("WiFi AP Mode Failed to Initialize");
+			println("Try again in ");
 			for (char i = 3; i > 0; i++) {
 				println(i);
 				delay(1000);
@@ -73,13 +72,12 @@ public:
 		if (status != WiFi.status()) {
 			if ((status = WiFi.status()) == WL_AP_CONNECTED) {
 				byte remoteMac[6];
-				WiFi.APClientMacAddress(remoteMac);
-				println(F("Device connected to AP"));
-				print(F("MAC Address: "));
-				printMacAddress(remoteMac);
+				println("Device connected to AP");
+				print("MAC Address: ");
+				printMacAddress(WiFi.APClientMacAddress(remoteMac));
 				server.begin();
 			} else {
-				println(F("Device disconnected from AP"));
+				println("Device disconnected from AP");
 			}
 		}
 
@@ -90,9 +88,9 @@ public:
 
 		WiFiClient client = server.available();
 		if (client && client.connected() && client.available()) {
-			constexpr const int size = 4096;
-			char httpRequest[size + 1]{0};
-			int count = 0;
+			constexpr const int size   = 4095;
+			char httpRequest[size + 1] = {0};
+			auto count				   = 0;
 
 			while (client.available()) {
 				httpRequest[count++] = client.read();
@@ -104,8 +102,6 @@ public:
 					httpRequest[count++] = client.read();
 				}
 			}
-
-			// println(httpRequest);
 
 			// Construct a request object and handle accordingly
 			client.flush();
@@ -166,23 +162,18 @@ public:
 
 	void printWiFiStatus() {
 		// SSID:
-		print(F("SSID: "));
-		println(WiFi.SSID());
+		println("SSID: ", WiFi.SSID());
 
 		// IP address:
 		IPAddress ip = WiFi.localIP();
-		print(F("IP Address: "));
-		println(ip);
+		println("IP Address: ", ip);
 
 		// Signal strength:
 		long rssi = WiFi.RSSI();
-		print(F("Signal strength (RSSI):"));
-		print(rssi);
-		println(F(" dBm"));
+		println("Signal strength (RSSI): ", rssi, "dBM");
 
 		// Address:
-		print(F("Web Browser: http://"));
-		println(ip);
+		println("Web Browser: http://", ip);
 	}
 
 	void printMacAddress(byte mac[]) {
@@ -190,7 +181,7 @@ public:
 			if (mac[i] < 16) {
 				print("0");
 			}
-			print(mac[i], HEX);
+			Serial.print(mac[i], HEX);
 			if (i > 0) {
 				print(":");
 			}

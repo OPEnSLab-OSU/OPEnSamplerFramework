@@ -12,10 +12,6 @@ private:
 public:
 	std::function<bool()> condition;
 	std::function<void()> callback;
-
-	// KPStateSchedule(long time, std::function<void()> callback) : time(time), callback(callback)
-	// {}
-
 	KPStateSchedule(std::function<bool()> condition, std::function<void()> callback)
 		: condition(condition),
 		  callback(callback) {}
@@ -25,16 +21,16 @@ class KPState {
 	friend class KPStateMachine;
 
 protected:
-	const char * name		= nullptr;
-	unsigned long startTime = 0;
-	bool didEnter			= false;
-	size_t numberOfSchedules	= 0;
+	const char * name		 = nullptr;
+	unsigned long startTime	 = 0;
+	bool didEnter			 = false;
+	size_t numberOfSchedules = 0;
 	std::vector<KPStateSchedule> schedules;
 
 	void begin() {
-		startTime		= millis();
+		startTime		  = millis();
 		numberOfSchedules = 0;
-		didEnter		= false;
+		didEnter		  = false;
 	}
 
 	void reserve(size_t size) {
@@ -47,7 +43,7 @@ public:
 	}
 
 	/** ────────────────────────────────────────────────────────────────────────────
-	 *  @brief REQUIRED Subclass must override this method and specify the behavior
+	 *  @brief [Required] Subclass must override this method and specify the behavior
 	 * when entering this state
 	 *
 	 *  @param machine
@@ -77,7 +73,7 @@ public:
 	}
 
 	void setTimeCondition(unsigned long seconds, std::function<void()> callback) {
-		unsigned long millis = secsToMillis(seconds);
+		auto millis = secsToMillis(seconds);
 		setCondition([this, millis]() { return timeSinceLastTransition() >= millis; }, callback);
 	}
 

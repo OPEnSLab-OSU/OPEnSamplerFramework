@@ -11,20 +11,20 @@ template <typename T>
 class KPSubject {
 protected:
 	using ObserverType = T;
-	std::unordered_map<long, ObserverType *> observers;
+	std::unordered_map<int, ObserverType *> observers;
 
 public:
-	int addObserver(ObserverType & o) {
-		return addObserver(&o);
-	}
-
 	int addObserver(ObserverType * o) {
-		int token = rand();
+		auto token = rand();
 		while (!observers.insert({token, o}).second) {
 			token = rand();
 		}
 
 		return token;
+	}
+
+	auto addObserver(ObserverType & o) -> decltype(addObserver(&o)) {
+		return addObserver(&o);
 	}
 
 	void removeObserver(long token) {
