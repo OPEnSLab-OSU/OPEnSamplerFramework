@@ -16,8 +16,9 @@ public:
 	using KPComponent::KPComponent;
 
 	/**
-	 * Register a state with a given unique name. "Optionally" accepts a
-	 * middleware functor as the third parameter.
+	 * Register a state with a given unique name. "Optionally" accepts a functor as the third
+	 * parameter. The functor should take care of calling  transitionTo() method
+	 * of this state machine to move on to the next state.
 	 *
 	 * The middleware should define how the state would transition to another
 	 * state according a passed-in integer value.
@@ -50,7 +51,8 @@ public:
 	}
 
 	/**
-	 * Convenient method for registering a state with one transition path
+	 * Convenient method for registering a state with one direct transition to
+	 * the next one
 	 *
 	 * @tparam T Deduced subtype of the state
 	 * @param state State instance

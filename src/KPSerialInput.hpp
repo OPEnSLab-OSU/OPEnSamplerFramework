@@ -15,7 +15,7 @@ public:
 		while (Serial.available() > 0) {
 			char inputChar = Serial.read();
 			if (inputChar == '\n') {
-				updateObservers(&KPSerialInputObserver::commandReceived, input);
+				updateObservers(&KPSerialInputObserver::commandReceived, input, input.size());
 				input.clear();
 				return;
 			}
