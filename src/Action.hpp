@@ -4,23 +4,24 @@
 #include <vector>
 
 class TimedAction {
-public:
-	bool removable		  = false;
-	long start			  = 0;
-	long interval		  = 0;
-	signed char repeatFor = 0;
-	KPString name;
-
-	std::function<void()> callback;
-
-public:
-	TimedAction() = default;
-	TimedAction(const char * name) : name(name) {}
+protected:
+	friend class ActionScheduler;
+	bool removable = false;
+	long start	   = 0;
 
 	void begin() {
 		removable = false;
 		start	  = millis();
 	}
+
+public:
+	long interval		  = 0;
+	signed char repeatFor = 0;
+	const char * name;
+
+	std::function<void()> callback;
+	TimedAction() = default;
+	TimedAction(const char * name) : name(name) {}
 
 	long timeElapsed() const {
 		return millis() - start;
@@ -37,14 +38,15 @@ public:
 
 	ActionScheduler(const char * name) : KPComponent(name) {}
 
-	void add(const TimedAction & action) {
-		actions.push_back(action);
+	template <typename T>
+	void add(T && action) {
+		actions.push_back(std::move(action));
 		actions.back().begin();
 	}
 
 	void markForRemoval(const char * name) {
 		for (auto & action : actions) {
-			if (action.name == name) {
+			if (strcmp(action.name, name) == 0) {
 				action.removable = true;
 			}
 		}
@@ -69,7 +71,9 @@ public:
 
 			if (action.repeatFor == 0) {
 				action.removable = true;
-			} else {
+			}
+
+			if (!action.removable) {
 				action.begin();
 				action.repeatFor = std::max(action.repeatFor - 1, -1);
 			}
@@ -82,8 +86,9 @@ public:
 	}
 };
 
-inline void run(const TimedAction & action) {
-	ActionScheduler::sharedInstance().add(action);
+template <typename T>
+inline void run(T && action) {
+	ActionScheduler::sharedInstance().add(std::forward<T>(action));
 }
 
 inline void run(long delay, std::function<void()> callback) {
@@ -100,6 +105,11 @@ inline void runForever(long delay, const char * name, std::function<void()> call
 	action.callback	 = callback;
 	action.repeatFor = -1;
 	ActionScheduler::sharedInstance().add(action);
+}
+
+inline void runForever(TimedAction action) {
+	action.repeatFor = -1;
+	ActionScheduler::sharedInstance().add(std::move(action));
 }
 
 inline void cancel(const char * name) {
