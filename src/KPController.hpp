@@ -15,7 +15,7 @@ public:
 	}
 
 	void addComponent(KPComponent * c) {
-		if (mapNameToComponent.find(c->name) == mapNameToComponent.end()) {
+		if (mapNameToComponent.find(c->name) != mapNameToComponent.end()) {
 			halt(TRACE, c->name, " already exists");
 		}
 
