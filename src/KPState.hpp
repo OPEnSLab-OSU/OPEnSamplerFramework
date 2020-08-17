@@ -1,6 +1,5 @@
 #pragma once
 #include <KPFoundation.hpp>
-#include <KPStateMachine.hpp>
 #include <functional>
 #include <vector>
 
@@ -17,6 +16,7 @@ public:
 		  callback(callback) {}
 };
 
+class KPStateMachine;
 class KPState {
 	friend class KPStateMachine;
 

@@ -8,44 +8,9 @@
 
 #include <KPConfiguration.hpp>
 
-#define TRACE "[Trace", millis() / 1000, " ", __FILE__, ":", __LINE__, __PRETTY_FUNCTION__, "] "
-
-enum class Verbosity : int { none, error, info, debug };
-
-struct PrintConfig {
-private:
-	static Verbosity printVerbose;
-
-public:
-#ifdef DEBUG
-	static const Verbosity defaultPrintVerbose = Verbosity::debug;
-#else
-	static const Verbosity defaultPrintVerbose = Verbosity::error;
-#endif
-
-	PrintConfig() = delete;
-	static const char * printSeparator;
-
-	static Verbosity getPrintVerbose() {
-		return printVerbose;
-	}
-
-	static void setPrintVerbose(Verbosity level) {
-		printVerbose = level;
-	}
-
-	static void setDefaultVerbose() {
-		printVerbose = defaultPrintVerbose;
-	}
-};
-
-#define secsToMillis(x) ((x) *1000)
-#define millisToSecs(x) ((x) / 1000)
+#define TRACE "[Trace ", millis() / 1000, " ", __FILE__, ":", __LINE__, __PRETTY_FUNCTION__, "] "
 
 extern "C" char * sbrk(int i);
-extern size_t free_ram();
-extern size_t printFreeRam();
-extern int strcmpi(const char *, const char *);
 
 class KPController;
 class KPComponent {
@@ -107,18 +72,10 @@ Print & operator<<(Print & printer, T && val) {
 // ────────────────────────────────────────────────────────────────────────────────
 template <typename... Types>
 size_t print(Types &&... values) {
-	if (PrintConfig::getPrintVerbose() > PrintConfig::defaultPrintVerbose) {
-		return 0;
-	}
-
 	return printTo(Serial, std::forward<Types>(values)...);
 }
 
 inline size_t println() {
-	if (PrintConfig::getPrintVerbose() > PrintConfig::defaultPrintVerbose) {
-		return 0;
-	}
-
 	return Serial.println();
 }
 
@@ -213,3 +170,33 @@ public:
 		return !(operator==(rhs));
 	}
 };
+
+inline double secsToMillis(double seconds) {
+	return seconds * 1000;
+}
+
+inline double millisToSecs(double ms) {
+	return ms / 1000;
+}
+
+inline size_t free_ram() {
+	char stack_dummy;
+	return &stack_dummy - sbrk(0);
+}
+
+inline int strcmpi(const char * left, const char * right) {
+	for (int i = 0;; i++) {
+		int l = left[i], r = right[i];
+		if (l == 0 && r == 0) {
+			return 0;
+		}
+
+		if (toupper(l) != toupper(r)) {
+			return l - r;
+		}
+	}
+}
+
+inline size_t printFreeRam() {
+	return println("Free Memory: ", free_ram());
+}

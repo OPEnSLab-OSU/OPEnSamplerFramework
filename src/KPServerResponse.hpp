@@ -77,11 +77,9 @@ public:
 	template <size_t N>
 	size_t send(const char (&data)[N]) {
 		if (N > TCP_LIMIT) {
-			PrintConfig::setPrintVerbose(Verbosity::info);
 			println("Warning: data exeeds TCP limit. All or some of it may be lost.");
 			println("Try to reduce the amount of data sent at once to be below ", TCP_LIMIT,
 					" bytes");
-			PrintConfig::setDefaultVerbose();
 		}
 
 		if (headerPending) {

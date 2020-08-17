@@ -5,6 +5,7 @@
 #include <KPSerialInput.hpp>
 #include <KPServer.hpp>
 #include <KPStateMachine.hpp>
+#include <Action.hpp>
 
 void test_kpstring_concat() {
 	auto name = "panda";
@@ -19,11 +20,30 @@ void TestStringConstructors() {}
 
 // typedef std::pair<void (*)(), const char *> TestEntry;
 // std::initializer_list<TestEntry> tests = {TEST(test_kpstring_concat), TEST()};
+int read() {
+	static int a = 5;
+	if (a == -1) {
+		a = 5;
+	}
+
+	return a--;
+}
 
 void setup() {
 	delay(5000);
 	UNITY_BEGIN();
-	RUN_TEST(test_kpstring_concat);
+	TimedAction action;
+	action.name		= "check";
+	action.interval = 1000;
+	action.callback = [action]() {
+		if (read()) {
+			// cancel and delay for 50ms
+			cancel("check");
+			run(5000, [action]() { runForever(action); });
+		}
+	};
+
+	runForever(action);
 	UNITY_END();
 }
 
