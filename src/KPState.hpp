@@ -38,45 +38,67 @@ protected:
 	}
 
 public:
+	/**
+	 * Get the Name object
+	 *
+	 * @return const char* pointer to the name assigned to this state
+	 */
 	const char * getName() const {
 		return name;
 	}
 
-	/** ────────────────────────────────────────────────────────────────────────────
-	 *  @brief [Required] Subclass must override this method and specify the behavior
+	/**
+	 * [Required] Subclass must override this method and specify the behavior
 	 * when entering this state
 	 *
-	 *  @param machine
-	 *  ──────────────────────────────────────────────────────────────────────────── */
+	 * @param machine
+	 */
 	virtual void enter(KPStateMachine & machine) = 0;
 
-	/** ────────────────────────────────────────────────────────────────────────────
-	 *  @brief When override, this method is called just before the transition to new
-	 *  state
+	/**
+	 * When override, this method is called just before the transition to new
+	 * state
 	 *
-	 *  @param machine State machine owning this state
-	 *  ──────────────────────────────────────────────────────────────────────────── */
+	 * @param machine State machine owning this state
+	 */
 	virtual void leave(KPStateMachine & machine) {}
 
-	/** ────────────────────────────────────────────────────────────────────────────
-	 *  @brief Override to receive runtime lifecycle loop while in this state
+	/**
+	 * Override to receive runtime lifecycle loop while in this state
 	 *
-	 *  @param machine State machine owning this state
-	 *  ──────────────────────────────────────────────────────────────────────────── */
+	 * @param machine State machine owning this state
+	 */
 	virtual void update(KPStateMachine & machine) {}
 
 	// TODO: Maybe a good idea
 	// virtual void setValuesFromJson(const JsonVariant & data) {}
 
+	/**
+	 * Return time since the last call to enter lifecycle method
+	 *
+	 * @return unsigned long
+	 */
 	unsigned long timeSinceLastTransition() const {
 		return millis() - startTime;
 	}
 
+	/**
+	 * Convenient method for time-based state condition
+	 *
+	 * @param seconds time until the callback is executed
+	 * @param callback callback to execute when the time expires
+	 */
 	void setTimeCondition(unsigned long seconds, std::function<void()> callback) {
 		auto millis = secsToMillis(seconds);
 		setCondition([this, millis]() { return timeSinceLastTransition() >= millis; }, callback);
 	}
 
+	/**
+	 * Set the state condition.
+	 *
+	 * @param condition callable that returns true on abitary condition
+	 * @param callback callable to be executed when condition returns true
+	 */
 	void setCondition(std::function<bool()> condition, std::function<void()> callback) {
 		if (numberOfSchedules == schedules.size()) {
 			schedules.push_back(KPStateSchedule(condition, callback));

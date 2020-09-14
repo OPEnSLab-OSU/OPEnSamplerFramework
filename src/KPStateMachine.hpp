@@ -113,6 +113,10 @@ public:
 	void transitionTo(StateName name);
 
 protected:
+	/**
+	 * The default setup method of this class do nothing
+	 *
+	 */
 	void setup() override;
 	void update() override;
 };

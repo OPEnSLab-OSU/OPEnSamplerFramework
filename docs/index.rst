@@ -8,8 +8,7 @@
    :end-before: end_readme
 
 .. toctree::
-   :hidden:
-   :maxdepth: 2
-
-   pages/getting-started.rst
+   :maxdepth: 5
+   
+   pages/installation
    api/library_root

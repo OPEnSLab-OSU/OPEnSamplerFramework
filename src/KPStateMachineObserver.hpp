@@ -2,6 +2,12 @@
 #include <KPObserver.hpp>
 
 class KPState;
+
+/**
+ * By inheriting this class, the subclass can listen to several notifications
+ * called from KPStateMachine
+ * 
+ */
 class KPStateMachineObserver : public KPObserver {
 public:
 	const char * ObserverName() const {
