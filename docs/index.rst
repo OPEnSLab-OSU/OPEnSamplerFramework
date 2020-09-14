@@ -10,5 +10,5 @@
 .. toctree::
    :maxdepth: 5
    
-   pages/installation
+   pages/start_here
    api/library_root

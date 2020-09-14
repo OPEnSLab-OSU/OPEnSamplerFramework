@@ -33,8 +33,7 @@ Getting Started
 -----------------
 
 The easiest way to start using OPEnSamplerFramework is to use VSCode with PlatformIO extension. 
-See 
-doc:`Getting Started Guide <pages/getting-started>` 
+See :doc:`Getting Started Guide <pages/start_here>`.
 
 
 .. end_readme
