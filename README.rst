@@ -1,8 +1,8 @@
 .. begin_readme
 
 OPEnSampler Framework
-=====================
-|codesize| |language|
+============================
+|codesize| |language| |docs|
 
 .. |codesize| image:: https://img.shields.io/github/languages/code-size/OPEnSLab-OSU/OPEnSamplerFramework.svg?branch=master
    :alt: Code size
@@ -10,7 +10,7 @@ OPEnSampler Framework
 .. |language| image:: https://img.shields.io/badge/language-c%2B%2B-red.svg
    :alt: Language
 
-.. |docs| image:: https://readthedocs.org/projects/exhale/badge/?version=latest
+.. |docs| image:: https://readthedocs.org/projects/opensampler-framework/badge/?version=latest
    :alt: Documentation Status
 
 .. begin_framework_brief
@@ -33,7 +33,7 @@ Getting Started
 -----------------
 
 The easiest way to start using OPEnSamplerFramework is to use VSCode with PlatformIO extension. 
-See :doc:`Getting Started Guide <pages/start_here>`.
+See `Getting Started Guide <https://opensampler-framework.readthedocs.io/en/latest/pages/start_here.html>`_.
 
 
 .. end_readme
