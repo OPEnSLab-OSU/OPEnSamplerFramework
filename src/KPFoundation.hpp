@@ -6,8 +6,6 @@
 #include <algorithm>
 #include <numeric>
 
-#include <KPConfiguration.hpp>
-
 #define TRACE "[Trace ", millis() / 1000, " ", __FILE__, ":", __LINE__, __PRETTY_FUNCTION__, "] "
 
 extern "C" char * sbrk(int i);
