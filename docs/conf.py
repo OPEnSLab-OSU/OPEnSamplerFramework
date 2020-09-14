@@ -22,6 +22,8 @@ project = "Framework"
 copyright = "2020, Kawin Pechetratanapanit"
 author = "Kawin"
 
+master_doc = "index"
+
 # The full version, including alpha/beta/rc tags
 release = "v1"
 
