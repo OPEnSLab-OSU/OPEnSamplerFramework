@@ -152,11 +152,7 @@ public:
 		return _size;
 	}
 
-	const char * c_str() const {
-		return buffer;
-	}
-
-	operator const char *() const {
+	operator char *() {
 		return buffer;
 	}
 
