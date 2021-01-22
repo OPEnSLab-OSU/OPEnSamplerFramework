@@ -12,6 +12,7 @@ public:
 	KPFileLoader(const char * name, int pin) : KPDataStoreInterface(name), pin(pin) {}
 
 	void setup() override {
+		delay(20);
 		SD.begin(pin);
 	}
 
