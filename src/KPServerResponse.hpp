@@ -101,25 +101,23 @@ public:
 
 	size_t sendFile(const char * filepath, KPDataStoreInterface & store) {
 		if (headerPending) {
-			setHeader("Transfer-Encoding", "chunked");
+			File file	= SD.open(filepath);
+			size_t size = file.size();
+			char size_buffer[20]{0};
+			sprintf(size_buffer, "%d", size);
+			setHeader("Content-Length", size_buffer);
 			sendHeader();
 		}
 
-		// Chunk encoding
 		const size_t bufferSize = 1400;
 		char buffer[bufferSize]{0};
 		int charsRead = 0;
 		size_t total  = 0;
+
 		while ((charsRead = store.loadContentOfFile(filepath, buffer, bufferSize)) > 0) {
-			client.printf("%X\r\n", charsRead);
 			client.write(buffer, charsRead);
 			client.flush();
 			total += charsRead;
-		}
-
-		// Chunk terminator
-		if (charsRead == 0) {
-			client.print("0\r\n");
 		}
 
 		return total + 1;
