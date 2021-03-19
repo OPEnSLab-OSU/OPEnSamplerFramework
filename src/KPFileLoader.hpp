@@ -1,5 +1,6 @@
 #pragma once
-#include <SD.h>
+#include <Components/SDcard.hpp>
+#include <FatLib/FatFile.h>
 
 #include <KPDataStoreInterface.hpp>
 #include <KPFoundation.hpp>
@@ -43,7 +44,7 @@ public:
 
 		prevFilepath = filepath;
 
-		File file = SD.open(filepath, FILE_READ);
+		File32 file = SD.open(filepath, FILE_READ);
 		if (!file) {
 			println("File not found: ", filepath);
 			position = 0;
@@ -80,7 +81,7 @@ public:
 
 	int saveContentToFile(const char * filepath, char * buffer, size_t bufferSize,
 						  bool replaceContent = false) override {
-		File file = SD.open(filepath, FILE_WRITE);
+		File32 file = SD.open(filepath, FILE_WRITE);
 		if (replaceContent)
 			file.seek(0);
 		file.write(buffer, bufferSize);

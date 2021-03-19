@@ -10,6 +10,8 @@
 
 #include <KPFoundation.hpp>
 #include <KPDataStoreInterface.hpp>
+#include <Components/SDcard.hpp>
+#include <FatLib/FatFile.h>
 
 struct Response {
 private:
@@ -101,7 +103,7 @@ public:
 
 	size_t sendFile(const char * filepath, KPDataStoreInterface & store) {
 		if (headerPending) {
-			File file	= SD.open(filepath);
+			File32 file	= SD.open(filepath);
 			size_t size = file.size();
 			char size_buffer[20]{0};
 			sprintf(size_buffer, "%d", size);
