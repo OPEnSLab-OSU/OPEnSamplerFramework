@@ -14,7 +14,7 @@ public:
 
 	void setup() override {
 		delay(20);
-		SD.begin(pin);
+		SDCard::sharedInstance().begin(pin);
 	}
 
 	template <size_t N>
@@ -44,7 +44,7 @@ public:
 
 		prevFilepath = filepath;
 
-		File32 file = SD.open(filepath, FILE_READ);
+		File file = SDCard::sharedInstance().open(filepath, FILE_READ);
 		if (!file) {
 			println("File not found: ", filepath);
 			position = 0;
@@ -81,7 +81,7 @@ public:
 
 	int saveContentToFile(const char * filepath, char * buffer, size_t bufferSize,
 						  bool replaceContent = false) override {
-		File32 file = SD.open(filepath, FILE_WRITE);
+		File file = SDCard::sharedInstance().open(filepath, FILE_WRITE);
 		if (replaceContent)
 			file.seek(0);
 		file.write(buffer, bufferSize);
