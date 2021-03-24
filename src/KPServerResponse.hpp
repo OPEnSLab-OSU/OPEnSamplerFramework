@@ -103,7 +103,7 @@ public:
 
 	size_t sendFile(const char * filepath, KPDataStoreInterface & store) {
 		if (headerPending) {
-			File file	= SDCard::sharedInstance().open(filepath);
+			File32 file	= SDCard::sharedInstance().open(filepath);
 			size_t size = file.size();
 			char size_buffer[20]{0};
 			sprintf(size_buffer, "%d", size);

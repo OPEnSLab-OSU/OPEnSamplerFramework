@@ -44,9 +44,10 @@ public:
 
 		prevFilepath = filepath;
 
-		File file = SDCard::sharedInstance().open(filepath, FILE_READ);
-		if (!file) {
+		File32 file = SDCard::sharedInstance().open(filepath, FILE_READ);
+		if (!file.isOpen()) {
 			println("File not found: ", filepath);
+			println("File Exists: ", file.exists(filepath));
 			position = 0;
 			return -1;
 		} else {
@@ -81,7 +82,7 @@ public:
 
 	int saveContentToFile(const char * filepath, char * buffer, size_t bufferSize,
 						  bool replaceContent = false) override {
-		File file = SDCard::sharedInstance().open(filepath, FILE_WRITE);
+		File32 file = SDCard::sharedInstance().open(filepath, FILE_WRITE);
 		if (replaceContent)
 			file.seek(0);
 		file.write(buffer, bufferSize);
