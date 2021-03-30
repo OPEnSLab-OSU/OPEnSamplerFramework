@@ -1,7 +1,5 @@
 #pragma once
 #include <Components/SDcard.hpp>
-#include <FatLib/FatFile.h>
-
 #include <KPDataStoreInterface.hpp>
 #include <KPFoundation.hpp>
 
@@ -44,7 +42,7 @@ public:
 
 		prevFilepath = filepath;
 
-		File32 file = SDCard::sharedInstance().open(filepath, FILE_READ);
+		File file = SDCard::sharedInstance().open(filepath, FILE_READ);
 		if (!file.isOpen()) {
 			println("File not found: ", filepath);
 			println("File Exists: ", file.exists(filepath));
@@ -82,7 +80,7 @@ public:
 
 	int saveContentToFile(const char * filepath, char * buffer, size_t bufferSize,
 						  bool replaceContent = false) override {
-		File32 file = SDCard::sharedInstance().open(filepath, FILE_WRITE);
+		File file = SDCard::sharedInstance().open(filepath, FILE_WRITE);
 		if (replaceContent)
 			file.seek(0);
 		file.write(buffer, bufferSize);
