@@ -42,14 +42,17 @@ public:
 
 		prevFilepath = filepath;
 
-		File file = SDCard::sharedInstance().open(filepath, FILE_READ);
-		if (!file.isOpen()) {
+		File file = SDCard::sharedInstance().open(filepath);
+		if (!file) {
 			println("File not found: ", filepath);
 			println("File Exists: ", file.exists(filepath));
 			position = 0;
 			return -1;
 		} else {
-			println("File found: ", file.name());
+			char name[13];
+			file.getName(name, 13);
+
+			println("File found: ", name);
 			println("Loading content of file: ", filepath);
 		}
 

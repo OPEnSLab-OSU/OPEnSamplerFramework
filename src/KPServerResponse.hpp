@@ -102,11 +102,18 @@ public:
 	}
 
 	size_t sendFile(const char * filepath, KPDataStoreInterface & store) {
+		SDCard::sharedInstance().chdir();
 		if (headerPending) {
-			File file	= SDCard::sharedInstance().open(filepath);
-			size_t size = file.size();
+			if (!SDCard::sharedInstance().begin(10)) {
+            	println("Not ready - reres");
+        	};
+			File file	= SDCard::sharedInstance().open(filepath, FILE_READ);
+			if(!file){
+				println("Cannont find file: ", filepath);
+			}
+			uint64_t size = file.fileSize();
 			char size_buffer[20]{0};
-			sprintf(size_buffer, "%d", size);
+			sprintf(size_buffer, "%llu", size);
 			setHeader("Content-Length", size_buffer);
 			sendHeader();
 		}
@@ -115,7 +122,6 @@ public:
 		char buffer[bufferSize]{0};
 		int charsRead = 0;
 		size_t total  = 0;
-
 		while ((charsRead = store.loadContentOfFile(filepath, buffer, bufferSize)) > 0) {
 			client.write(buffer, charsRead);
 			client.flush();
