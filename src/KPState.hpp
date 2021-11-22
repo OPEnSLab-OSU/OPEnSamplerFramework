@@ -82,6 +82,10 @@ public:
 		return millis() - startTime;
 	}
 
+	unsigned long timeSinceStart(unsigned long t){
+		return millis() - t;
+	}
+
 	/**
 	 * Convenient method for time-based state condition
 	 *
@@ -91,6 +95,18 @@ public:
 	void setTimeCondition(unsigned long seconds, std::function<void()> callback) {
 		auto millis = secsToMillis(seconds);
 		setCondition([this, millis]() { return timeSinceLastTransition() >= millis; }, callback);
+	}
+
+	/**
+	 * Sets time-based state condition (based on when time condition set)
+	 *
+	 * @param seconds time from function call until the callback is executed
+	 * @param callback callback to execute when the time expires
+	 */
+	void setRelativeTimeCondition(unsigned long seconds, std::function<void()> callback) {
+		auto beginTime = millis();
+		auto millis = secsToMillis(seconds);
+		setCondition([this, millis, beginTime]() { return timeSinceStart(beginTime) >= millis; }, callback);
 	}
 
 	/**
